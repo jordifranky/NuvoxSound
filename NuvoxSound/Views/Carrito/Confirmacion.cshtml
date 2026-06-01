@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Compra Exitosa - Nuvox Sound";
+}
+
+<div class="container mt-5 text-center">
+    <div class="card shadow border-0 py-5">
+        <div class="card-body">
+            <i class="fa-solid fa-circle-check text-success" style="font-size: 5rem;"></i>
+            <h1 class="display-5 fw-bold mt-3">¡Pago Procesado con Éxito!</h1>
+            <p class="lead text-muted mt-3">Tu compra ha sido registrada correctamente de forma segura en nuestros servidores.</p>
+            <p>Tus Sample Packs y recursos digitales ya están disponibles en tu <strong>Librería Virtual</strong>.</p>
+            
+            <hr class="my-4 w-50 mx-auto" />
+            
+            <a asp-controller="Producto" asp-action="Index" class="btn btn-dark btn-lg px-4 mt-2">
+                Volver al Catálogo
+            </a>
+        </div>
+    </div>
+</div>

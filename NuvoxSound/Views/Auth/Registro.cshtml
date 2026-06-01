@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "Registro";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro - NuvoxSound</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="auth-body d-flex align-items-center justify-content-center">
+
+    <!-- Fondo interactivo -->
+    <div class="hero-orb hero-orb-1" style="opacity: 0.6;"></div>
+    <div class="hero-orb hero-orb-2" style="opacity: 0.6;"></div>
+    <div class="hero-grid"></div>
+
+    <!-- my-5 agrega margen arriba y abajo por si la pantalla del usuario es muy pequeña y necesita hacer scroll -->
+    <div class="container d-flex justify-content-center my-5">
+        <div class="auth-card p-5 w-100" style="max-width: 32rem;">
+
+            <div class="text-center mb-5">
+                <div class="auth-logo"><i class="fa-solid fa-user-plus"></i> CREA TU <span>CUENTA</span></div>
+                <div class="auth-subtitle">Únete a Nuvox Sound</div>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-dark-danger rounded" role="alert">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> @ViewBag.Error
+                </div>
+            }
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-dark-success rounded" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> @ViewBag.Message
+                </div>
+            }
+
+            <form action="/Auth/Registro" method="post">
+
+                <!-- Fila para Nombres y Apellidos (2 columnas) -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="auth-form-label">Nombres</label>
+                        <input type="text" class="custom-input" name="Nombres" required placeholder="Tus nombres" />
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="auth-form-label">Apellidos</label>
+                        <input type="text" class="custom-input" name="Apellidos" required placeholder="Tus apellidos" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="auth-form-label">Correo Electrónico</label>
+                    <input type="email" class="custom-input" name="Correo" required placeholder="tu@correo.com" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="auth-form-label">Contraseña</label>
+                    <input type="password" class="custom-input" name="password" required placeholder="••••••••" />
+                </div>
+
+                <button type="submit" class="btn-primary w-100 py-3 mt-2" style="justify-content: center; font-size: 1rem;">
+                    <i class="fa-solid fa-user-check"></i> REGISTRARSE
+                </button>
+
+            </form>
+
+            <div class="mt-4 text-center" style="font-size: 0.9rem; color: var(--grey-300);">
+                ¿Ya tienes una cuenta?
+                <a href="/Auth/Login" class="auth-link text-decoration-none fw-bold ms-1">
+                    Inicia sesión aquí
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

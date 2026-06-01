@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Admin Usuarios - NUVOX SOUND";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- ================= SIDEBAR SINCRONIZADO ================= -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-brands fa-nfc-directional text-gold"></i>
+                <span class="sidebar-brand-name">NUVOX ADMIN</span>
+            </div>
+            <div class="nav-label">Gestión Principal</div>
+            <nav class="sidebar-nav">
+                <a class="nav-item" href="/Dashboard/Index">
+                    <span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Resumen
+                </a>
+                <a class="nav-item" href="/Dashboard/Index">
+                    <span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Catálogo y Ventas
+                </a>
+                <a class="nav-item active" href="/Admin/Usuarios">
+                    <span class="nav-icon"><i class="fa-solid fa-user-shield"></i></span> Usuarios
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/" class="nav-item signout mb-2" style="text-decoration: none;">
+                    <span class="nav-icon"><i class="fa-solid fa-store"></i></span> Volver a Tienda
+                </a>
+                <!-- Enlace directo para destruir la cookie con seguridad -->
+                <a href="/Auth/Logout" class="nav-item signout" style="text-decoration: none;">
+                    <span class="nav-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Cerrar Sesión
+                </a>
+            </div>
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <main class="admin-content">
+            <div class="page-topbar mb-4">
+                <div>
+                    <h1 class="page-title">Gestión de Usuarios</h1>
+                    <p class="page-subtitle">Administra los accesos de tu equipo y base de clientes</p>
+                </div>
+                <button class="btn-nuvox-primary" onclick="abrirModalNuevoAdmin()">
+                    <i class="fa-solid fa-user-shield me-2"></i> Añadir Administrador
+                </button>
+            </div>
+
+            <div class="page-body">
+
+                <!-- Pestañas de Roles -->
+                <div class="role-tabs">
+                    <button class="role-tab active" id="tabAdmins" onclick="cambiarVistaRol(1)">
+                        <i class="fa-solid fa-user-tie me-2"></i> Administradores
+                    </button>
+                    <button class="role-tab" id="tabClientes" onclick="cambiarVistaRol(2)">
+                        <i class="fa-solid fa-users me-2"></i> Clientes
+                    </button>
+                </div>
+
+                <!-- Buscador -->
+                <div class="search-wrap mb-4 bg-dark-custom filter-box">
+                    <div class="search-input-group d-flex w-100" style="gap: 15px;">
+                        <div class="position-relative flex-grow-1">
+                            <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" id="txtBuscarUsuario" class="form-control bg-dark text-white border-secondary shadow-none ps-5 py-2" placeholder="Buscar por nombre, apellido o correo..." onkeyup="evaluarBusquedaUsuario(event)" />
+                        </div>
+                        <button class="btn btn-outline-warning fw-bold px-4" onclick="buscarUsuario()">
+                            <i class="fa-solid fa-search me-2"></i> BUSCAR
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenedor de la Tabla -->
+                <div id="contenedorUsuarios" class="table-shell table-wrapper">
+                    <div class="state-empty py-5 text-center">
+                        <i class="fa-solid fa-circle-notch fa-spin text-gold mb-3" style="font-size: 2rem;"></i>
+                        <p class="text-muted">Cargando usuarios...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODAL ================= -->
+    <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary text-white">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title text-gold" id="modalUsuarioTitle">Añadir Nuevo Administrador</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formUsuario">
+                    <div class="modal-body">
+                        <input type="hidden" id="IdUsuario" name="IdUsuario" value="0" />
+                        <input type="hidden" id="IdRol" name="IdRol" value="1" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Nombres <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary shadow-none" id="Nombres" name="Nombres" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Apellidos <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-dark text-white border-secondary shadow-none" id="Apellidos" name="Apellidos" required />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Correo Electrónico <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control bg-dark text-white border-secondary shadow-none" id="Correo" name="Correo" required />
+                            </div>
+                            <div class="col-12" id="contenedorClave">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Contraseña <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control bg-dark text-white border-secondary shadow-none" id="Clave" name="Clave" placeholder="Escribe la contraseña de acceso" />
+                                <div class="form-hint text-muted small mt-1" id="hintClave">Obligatorio para nuevos administradores.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning fw-bold" id="btnGuardarUsuario">Guardar Administrador</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Tu lógica de usuarios de SQL y JS -->
+    <script src="~/js/admin-usuarios.js" asp-append-version="true"></script>
+
+</body>
+</html>

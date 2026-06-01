@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Error en la Compra";
+}
+
+<div class="container mt-5 text-center">
+    <div class="alert alert-danger py-5 shadow-sm border-0">
+        <i class="fa-solid fa-triangle-exclamation text-danger" style="font-size: 4rem;"></i>
+        <h2 class="mt-4 fw-bold">Ups, el pago no pudo procesarse</h2>
+        <p class="lead mt-3">
+            @(ViewBag.Error ?? "Ocurrió un problema de comunicación con la base de datos.")
+        </p>
+        <p>Por favor, revisa tu conexión o intenta nuevamente en unos minutos.</p>
+        
+        <hr class="my-4 w-50 mx-auto border-danger" />
+        
+        <a asp-controller="Carrito" asp-action="Index" class="btn btn-outline-danger btn-lg mt-2">
+            <i class="fa-solid fa-cart-shopping me-2"></i> Volver a mi Carrito
+        </a>
+    </div>
+</div>

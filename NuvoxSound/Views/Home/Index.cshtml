@@ -1,0 +1,77 @@
+﻿@model IEnumerable<NuvoxSound.Entities.Producto>
+
+@{
+    ViewData["Title"] = "Catálogo";
+}
+
+<section class="hero">
+    <div class="hero-bg">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-grid"></div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge"><div class="badge-dot"></div> NUVOX SOUND V1.0</div>
+        <h1 class="hero-title">
+            <span class="hero-title-line">Eleva tu</span>
+            <span class="hero-title-italic">Producción</span>
+        </h1>
+        <p class="hero-subtitle">Descubre el catálogo definitivo de plugins, samples y presets para llevar tu música al siguiente nivel.</p>
+        <div class="hero-actions">
+            <a href="#catalogo" class="btn-primary">Ver Catálogo</a>
+        </div>
+    </div>
+</section>
+
+<section id="catalogo" class="section">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-label">Colección</span>
+            <h2 class="section-title">Nuestros <em>Productos</em></h2>
+        </div>
+
+        <div class="products-grid">
+            @foreach (var item in Model)
+            {
+                var coverClass = "cover-" + ((item.IdPro % 8) + 1);
+
+                <div class="product-card" data-category="@item.NomCat">
+                    <div class="product-img-wrap">
+                        <div class="cover-art @coverClass">
+                            <div class="cover-waveform mini">
+                                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                            </div>
+                            <i class="@item.RutImag text-white" style="font-size: 3rem; margin-top: 10px;"></i>
+                        </div>
+
+                        <div class="product-overlay">
+                            <button type="button" class="overlay-btn" onclick="openQuickView(@item.IdPro, '@Html.Raw(item.NomPro.Replace("'", "\\'"))', '@Html.Raw(item.NomCat.Replace("'", "\\'"))', '@Html.Raw(item.Descripcion.Replace("'", "\\'").Replace(System.Environment.NewLine, " "))', @item.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture), '@coverClass')">
+                                <i class="fa-solid fa-eye"></i> Vista Rápida
+                            </button>
+
+                            <form asp-controller="Carrito" asp-action="Agregar" method="post" class="mt-2 w-100 text-center">
+                                <input type="hidden" name="id" value="@item.IdPro" />
+                                <button type="submit" class="overlay-btn-ghost">
+                                    <i class="fa-solid fa-cart-plus"></i> Agregar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-artist">@item.NomCat</span>
+                        <h3 class="product-name text-truncate" title="@item.NomPro">@item.NomPro</h3>
+                        <div class="product-price-wrap">
+                            <span class="product-price" data-usd-price="@item.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)">$@item.Precio.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal" id="quickViewModal">
+    <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-content" id="modalContent"></div>
+</div>

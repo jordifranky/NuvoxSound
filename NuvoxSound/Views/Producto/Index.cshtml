@@ -1,0 +1,33 @@
+﻿@model IEnumerable<NuvoxSound.Entities.Producto>
+
+@{
+    ViewData["Title"] = "Catálogo - Nuvox Sound";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Catálogo de Productos</h2>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header text-center fs-1 py-3">
+                        <i class="@item.RutImag"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.NomPro</h5>
+                        <h6 class="card-subtitle mb-3 text-muted">@item.NomCat</h6>
+                        <p class="card-text text-truncate">@item.Descripcion</p>
+                        <h4 class="text-success fw-bold">$@item.Precio</h4>
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <a asp-controller="Carrito" asp-action="Agregar" asp-route-id="@item.IdPro" class="btn btn-dark w-100">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

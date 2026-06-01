@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NuvoxSound</title>
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="announcement-bar">
+        <div class="marquee-track">
+            <span>MASIVE 15+GB TRANCE PRODUCTION TOOLKIT • LIMITED TIME OFFER • 50% OFF</span>
+            <span>MASIVE 15+GB TRANCE PRODUCTION TOOLKIT • LIMITED TIME OFFER • 50% OFF</span>
+            <span>MASIVE 15+GB TRANCE PRODUCTION TOOLKIT • LIMITED TIME OFFER • 50% OFF</span>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fa-solid fa-compact-disc logo-icon"></i>
+                <span class="logo-text">NUVOX <span class="logo-accent">SOUND</span></span>
+            </a>
+
+            <div class="nav-links">
+                <div class="nav-item"><a href="#" class="nav-link">CATEGORÍAS <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
+                <div class="nav-item"><a href="#" class="nav-link">ARTISTAS <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
+                <div class="nav-item"><a href="#" class="nav-link">SERVICIOS <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
+                <div class="nav-item"><a href="#" class="nav-link">MERCANCÍA <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
+            </div>
+
+            <div class="nav-actions">
+                <div class="nav-item" style="margin-right: 10px;">
+                    <a href="#" class="nav-link" style="font-weight: 700; color: var(--cream);">
+                        <i class="fa-solid fa-globe" style="color: var(--amber);"></i> ES <i class="fa-solid fa-caret-down nav-caret"></i>
+                    </a>
+                    <div class="dropdown dropdown-simple" style="min-width: 140px; right: 0; left: auto;">
+                        <a href="#" class="dropdown-link"><i class="fa-solid fa-check"></i> Español (ES)</a>
+                        <a href="#" class="dropdown-link"><i class="fa-solid fa-language" style="color: var(--grey-500);"></i> English (EN)</a>
+                    </div>
+                </div>
+
+                <div class="currency-toggle" id="currencySelector" style="margin-right: 15px;">
+                    <span class="currency-option active" data-curr="USD">USD</span>
+                    <span class="currency-divider">/</span>
+                    <span class="currency-option" data-curr="PEN">PEN</span>
+                </div>
+
+                <button class="nav-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+
+                <!-- LÓGICA DE SESIÓN Y ROLES -->
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <!-- Solo los Administradores (Rol 1) verán el acceso al Dashboard -->
+                    @if (User.IsInRole("1"))
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="nav-btn" style="color: var(--success);" title="Panel de Administración">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </a>
+                    }
+
+                    <!-- El botón de Cerrar Sesión lo ven todos los usuarios autenticados -->
+                    <a asp-controller="Auth" asp-action="Logout" class="nav-btn" style="color: var(--error);" title="Cerrar Sesión">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
+                }
+                else
+                {
+                    <!-- Si no hay sesión, se muestra el botón de Login estándar -->
+                    <a asp-controller="Auth" asp-action="Login" class="nav-btn" title="Iniciar Sesión">
+                        <i class="fa-regular fa-user"></i>
+                    </a>
+                }
+
+                <a href="/Carrito/Index" class="nav-btn cart-btn">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-badge visible">1</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- SCRIPT DEL CHATBOT IBM WATSON -->
+    <script>
+        window.watsonAssistantChatOptions = {
+        integrationID: "8d3511b2-1076-429c-b984-b0ff7dcb23b7",
+        region: "au-syd",
+        serviceInstanceID: "6170b0c4-42b1-407d-a4f6-db59abdea4a4",
+        onLoad: async (instance) => { await instance.render(); }
+        };
+        setTimeout(function(){
+        const t=document.createElement('script');
+        t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+        document.head.appendChild(t);
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="NuvoxSound.Business/NuvoxSound.Business.csproj" Id="9c19d0bd-367c-4826-903d-51ad9f21c29d" />
+  <Project Path="NuvoxSound.Data/NuvoxSound.Data.csproj" Id="f58327f7-b061-42f8-8a45-46a80fe242ef" />
+  <Project Path="NuvoxSound.Entities/NuvoxSound.Entities.csproj" Id="6d6d533d-6bfe-415f-b2a4-8184b59e6d7e" />
+  <Project Path="NuvoxSound/NuvoxSound.csproj" />
+</Solution>

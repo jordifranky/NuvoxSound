@@ -1,0 +1,67 @@
+﻿@model IEnumerable<NuvoxSound.Entities.ItemCarrito>
+
+@{
+    ViewData["Title"] = "Mi Carrito - Nuvox Sound";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4"><i class="fa-solid fa-cart-shopping me-2"></i>Mi Carrito de Compras</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-light border text-center py-5 shadow-sm">
+            <i class="fa-solid fa-box-open fs-1 text-muted mb-3"></i>
+            <h4 class="text-muted">Tu carrito está vacío.</h4>
+            <p>¡Explora nuestro catálogo y encuentra los mejores sonidos para tu próxima producción!</p>
+            <a asp-controller="Producto" asp-action="Index" class="btn btn-dark mt-3 px-4">Ir al Catálogo</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle mb-0 bg-white border">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th class="text-center">Precio Unitario</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold fs-5">
+                                <i class="@(item.Producto?.RutImag) text-secondary me-2"></i> @item.Producto?.NomPro
+                            </td>
+                            <td><span class="badge bg-secondary">@item.Producto?.NomCat</span></td>
+
+                            <td class="text-center text-muted">$@((item.Producto?.Precio ?? 0).ToString("0.00"))</td>
+
+                            <td class="text-center fw-bold">@item.Cantidad</td>
+                            <td class="text-end fw-bold text-success">$@item.SubTotal.ToString("0.00")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="4" class="text-end fs-5 fw-bold py-3">TOTAL A PAGAR:</td>
+                        <td class="text-end fs-3 fw-bold text-success py-3">$@Model.Sum(i => i.SubTotal).ToString("0.00")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a asp-controller="Producto" asp-action="Index" class="btn btn-outline-dark">
+                <i class="fa-solid fa-arrow-left me-2"></i> Seguir Comprando
+            </a>
+
+            <a asp-controller="Carrito" asp-action="ProcesarPago" class="btn btn-success btn-lg px-5 shadow">
+                Proceder al Pago <i class="fa-solid fa-credit-card ms-2"></i>
+            </a>
+        </div>
+    }
+</div>

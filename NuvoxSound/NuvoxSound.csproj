@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.8" />
+	  <PackageReference Include="System.Text.Json" Version="10.0.8" />
+	  <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\NuvoxSound.Business\NuvoxSound.Business.csproj" />
+		<ProjectReference Include="..\NuvoxSound.Entities\NuvoxSound.Entities.csproj" />
+	</ItemGroup>
+
+</Project>
