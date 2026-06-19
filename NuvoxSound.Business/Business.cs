@@ -5,9 +5,10 @@ namespace NuvoxSound.Business
 {
     public class DashboardBusiness
     {
-        private readonly DashboardData _dashboardData;
+        
+        private readonly NuvoxSound.Data.Data _dashboardData;
 
-        public DashboardBusiness(DashboardData dashboardData)
+        public DashboardBusiness(NuvoxSound.Data.Data dashboardData)
         {
             _dashboardData = dashboardData;
         }

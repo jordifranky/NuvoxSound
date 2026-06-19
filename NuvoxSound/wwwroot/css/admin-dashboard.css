@@ -344,3 +344,51 @@ body {
     padding: 3rem 0;
     color: var(--admin-muted);
 }
+/* ========================================================
+   REDISEÑO PREMIUM - TARJETAS DE LIBRERÍA
+======================================================== */
+.premium-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 193, 7, 0.15) !important;
+}
+
+.drop-shadow {
+    filter: drop-shadow(0 0 15px rgba(255, 193, 7, 0.4));
+}
+
+/* Forzar que los modales de Bootstrap estén por encima de todo el panel */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal {
+    z-index: 1050 !important;
+}
+/* =====================================================
+   SISTEMA DE MODALES CUSTOM (ANTI-CONGELAMIENTOS)
+   ===================================================== */
+.nx-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(5px);
+    z-index: 105000;
+    display: none;
+}
+
+.nx-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 95%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 105001;
+    display: none;
+    border-radius: 15px;
+}

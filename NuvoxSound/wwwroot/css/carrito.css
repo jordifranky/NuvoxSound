@@ -1,0 +1,396 @@
+﻿/* =============================================
+   NUVOX SOUND - CARRITO DE COMPRAS (carrito.css)
+   ============================================= */
+
+.cart-wrapper {
+    padding: 50px 0;
+    min-height: 75vh;
+}
+
+.cart-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.5rem;
+    color: #fff;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+.cart-title-gold {
+    color: #f0a500;
+}
+
+/* Cajas Oscuras Premium */
+.cart-box {
+    background-color: #0e1535;
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+
+/* Tabla del Carrito */
+.cart-table {
+    width: 100%;
+    color: #fff;
+    border-collapse: collapse;
+}
+
+    .cart-table th {
+        color: #a0a8c0;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(240, 165, 0, 0.3);
+        padding-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .cart-table td {
+        padding: 20px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        vertical-align: middle;
+    }
+
+.cart-prod-icon {
+    width: 65px;
+    height: 65px;
+    background: rgba(240, 165, 0, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #f0a500;
+    border: 1px solid rgba(240, 165, 0, 0.3);
+}
+
+/* Estado Vacío */
+.cart-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+    .cart-empty-state i {
+        font-size: 6rem;
+        color: #f0a500;
+        opacity: 0.4;
+        margin-bottom: 25px;
+    }
+
+/* Botón de Pago */
+.btn-pay {
+    background: #f0a500;
+    color: #000;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+    .btn-pay:hover {
+        background: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(240, 165, 0, 0.4);
+    }
+
+/* RESPONSIVIDAD (MÓVILES) */
+@media (max-width: 768px) {
+    .cart-table thead {
+        display: none; /* Ocultamos las cabeceras en móviles */
+    }
+
+    .cart-table td {
+        display: block;
+        text-align: center;
+        border: none;
+        padding: 10px 0;
+    }
+
+    .cart-table tr {
+        display: block;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .cart-prod-icon {
+        margin: 0 auto 15px;
+    }
+
+    .text-end {
+        text-align: center !important;
+    }
+}
+/* =============================================
+   CHECKOUT PREMIUM & CUPONES (Añadir al final de carrito.css)
+   ============================================= */
+.nuvox-checkout-page {
+    background-color: #04081a;
+    min-height: 100vh;
+    padding: 60px 0;
+}
+
+.checkout-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1300px;
+    margin: 0 auto;
+    gap: 40px;
+    padding: 0 20px;
+}
+
+.col-left {
+    flex: 1 1 55%;
+}
+
+.col-right {
+    flex: 1 1 35%;
+}
+
+.section-title {
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+}
+
+/* Cajas de pago */
+.payment-box {
+    background: #0e1535;
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.payment-header {
+    padding: 20px 25px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(240, 165, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.payment-body {
+    padding: 30px 25px;
+}
+
+    /* Inputs del Checkout */
+    .payment-body .form-control {
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        padding: 14px 15px;
+        border-radius: 8px;
+        font-family: 'Outfit', monospace;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+
+        .payment-body .form-control:focus {
+            border-color: #f0a500 !important;
+            background: rgba(255,255,255,0.06) !important;
+            box-shadow: 0 0 0 3px rgba(240, 165, 0, 0.15) !important;
+        }
+
+/* Botones */
+.btn-paypal-express {
+    background: #ffc439;
+    color: #000;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    width: 100%;
+    font-weight: 800;
+    font-size: 1.1rem;
+    transition: 0.3s;
+}
+
+    .btn-paypal-express:hover {
+        background: #e5b033;
+        transform: translateY(-2px);
+    }
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #a0a8c0;
+    margin: 35px 0;
+}
+
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .divider span {
+        padding: 0 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+    }
+
+/* Íconos de tarjetas */
+.brand-icons-colored {
+    display: flex;
+    gap: 12px;
+}
+
+.card-icon {
+    font-size: 2.2rem;
+    color: #333;
+    transition: 0.3s;
+}
+
+    .card-icon.active-brand {
+        color: #f0a500;
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 8px rgba(240,165,0,0.4));
+    }
+
+/* Resumen Derecho */
+.summary-sticky {
+    position: sticky;
+    top: 120px;
+    background: #0e1535;
+    padding: 35px;
+    border-radius: 12px;
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+
+.product-thumb {
+    width: 55px;
+    height: 55px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(240, 165, 0, 0.2);
+}
+
+/* Sistema de Cupones */
+.coupon-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.coupon-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 8px;
+    outline: none;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+    .coupon-input:focus {
+        border-color: #f0a500;
+    }
+
+.btn-apply-coupon {
+    background: rgba(240, 165, 0, 0.1);
+    color: #f0a500;
+    border: 1px solid #f0a500;
+    padding: 0 25px;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+    .btn-apply-coupon:hover {
+        background: #f0a500;
+        color: #000;
+    }
+
+@media (max-width: 900px) {
+    .col-left, .col-right {
+        flex: 1 1 100%;
+    }
+
+    .col-right {
+        order: -1;
+    }
+}
+/* =============================================
+   BOTÓN DE PAGO FINAL ANIMADO (Checkout)
+   ============================================= */
+.btn-checkout-pay {
+    background: linear-gradient(135deg, #f0a500 0%, #c47e00 100%);
+    color: #04081a !important; /* Texto oscuro para máximo contraste */
+    border: none;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    box-shadow: 0 4px 15px rgba(240, 165, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    /* Efecto al pasar el mouse por encima */
+    .btn-checkout-pay:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(240, 165, 0, 0.5);
+        background: linear-gradient(135deg, #f5c842 0%, #f0a500 100%);
+        color: #000 !important;
+    }
+
+    /* Efecto al hacer clic */
+    .btn-checkout-pay:active {
+        transform: translateY(1px) scale(0.98);
+        box-shadow: 0 2px 10px rgba(240, 165, 0, 0.4);
+    }
+
+    /* Animación de destello de luz (Shine) que pasa cada 3 segundos */
+    .btn-checkout-pay::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+        transform: skewX(-25deg);
+        animation: shine-effect 3s infinite;
+    }
+
+@keyframes shine-effect {
+    0% {
+        left: -100%;
+    }
+
+    15% {
+        left: 200%;
+    }
+
+    100% {
+        left: 200%;
+    }
+}

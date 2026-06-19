@@ -50,7 +50,12 @@
                             </button>
 
                             <form asp-controller="Carrito" asp-action="Agregar" method="post" class="mt-2 w-100 text-center">
-                                <input type="hidden" name="id" value="@item.IdPro" />
+                                <input type="hidden" name="idProducto" value="@item.IdPro" />
+                                <input type="hidden" name="nombre" value="@item.NomPro" />
+                                <input type="hidden" name="precio" value="@item.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                                <input type="hidden" name="cantidad" value="1" />
+                                <input type="hidden" name="imagen" value="@item.RutImag" />
+
                                 <button type="submit" class="overlay-btn-ghost">
                                     <i class="fa-solid fa-cart-plus"></i> Agregar
                                 </button>

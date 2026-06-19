@@ -2,10 +2,12 @@
 @{
     ViewData["Title"] = "Admin Dashboard - NUVOX SOUND";
     Layout = null;
+    var misVentas = ViewBag.MisCompras as List<NuvoxSound.Entities.Venta>;
 }
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
@@ -15,20 +17,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/js/admin-dashboard.js" asp-append-version="true" />
 </head>
 <body>
-    <div class="admin-layout">
-
+    <div class="admin-layout theme-admin">
         <aside class="admin-sidebar">
             <div class="sidebar-brand">
                 <i class="fa-brands fa-nfc-directional text-gold"></i>
                 <span class="sidebar-brand-name">NUVOX ADMIN</span>
             </div>
-
             <div class="nav-label">Gestión Principal</div>
             <nav class="sidebar-nav">
                 <a class="nav-item active" href="javascript:void(0)" id="linkResumen" onclick="mostrarView('viewResumen', 'linkResumen')">
@@ -43,38 +41,38 @@
                 <a class="nav-item" href="javascript:void(0)" id="linkProductos" onclick="mostrarView('viewProductos', 'linkProductos')">
                     <span class="nav-icon"><i class="fa-solid fa-box-archive"></i></span> Productos
                 </a>
-                <a class="nav-item" href="/Admin/Usuarios">
-                    <span class="nav-icon"><i class="fa-solid fa-user-shield"></i></span> Usuarios
+                <a class="nav-item" href="javascript:void(0)" id="linkCupones" onclick="mostrarView('viewCupones', 'linkCupones')">
+                    <span class="nav-icon"><i class="fa-solid fa-ticket"></i></span> Cupones
+                </a>
+                <a class="nav-item" href="javascript:void(0)" id="linkUsuarios" onclick="mostrarView('viewUsuarios', 'linkUsuarios')">
+                    <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Usuarios
                 </a>
             </nav>
-
             <div class="sidebar-footer">
                 <a href="/" class="nav-item signout mb-2" style="text-decoration: none;">
                     <span class="nav-icon"><i class="fa-solid fa-store"></i></span> Volver a Tienda
                 </a>
-                <a href="/Auth/Logout" class="nav-item signout" style="text-decoration: none; width: 100%; border: none; background: transparent; text-align: left; cursor: pointer;">
+                <button class="nav-item signout" onclick="confirmarLogoutAdmin(event)" style="width: 100%; border: none; background: transparent; text-align: left; cursor: pointer;">
                     <span class="nav-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Cerrar Sesión
-                </a>
+                </button>
             </div>
         </aside>
 
         <main class="admin-content">
-
-            <div id="viewResumen" class="ventas-view">
+            <div id="viewResumen">
                 <div class="page-topbar mb-4">
                     <div>
                         <h1 class="page-title">Panel de Administración</h1>
                         <p class="page-subtitle">Métricas en tiempo real de Nuvox Sound</p>
                     </div>
                 </div>
-
                 <div class="page-body">
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
                             <div class="card card-dashboard border-secondary shadow-sm bg-dark">
                                 <div class="card-body p-4">
                                     <h6 class="text-muted text-uppercase fw-bold mb-2"><i class="fa-solid fa-users text-success me-2"></i>Usuarios Registrados</h6>
-                                    <h2 class="fw-bold mb-0 text-white">@Model.TotalUsuarios</h2>
+                                    <h2 class="fw-bold mb-0 text-white" id="lblTotalUsuarios">@Model.TotalUsuarios</h2>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +80,7 @@
                             <div class="card card-dashboard border-secondary shadow-sm bg-dark">
                                 <div class="card-body p-4">
                                     <h6 class="text-muted text-uppercase fw-bold mb-2"><i class="fa-solid fa-compact-disc text-info me-2"></i>Plugins & Samples</h6>
-                                    <h2 class="text-white fw-bold mb-0">@Model.TotalProductos</h2>
+                                    <h2 class="text-white fw-bold mb-0" id="lblTotalProductos">@Model.TotalProductos</h2>
                                 </div>
                             </div>
                         </div>
@@ -95,16 +93,16 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="card card-dashboard border-secondary shadow-sm bg-dark p-5 text-center mt-4">
-                        <i class="fa-solid fa-chart-area mb-3 text-muted" style="font-size: 3rem;"></i>
-                        <h4 class="text-gold">Gráfico de Rendimiento</h4>
-                        <p class="text-muted mb-0">Próximamente se integrará el historial de ventas aquí.</p>
+                    <div class="card card-dashboard border-secondary shadow-sm bg-dark p-4 mt-4" style="border-radius: 12px;">
+                        <h5 class="text-white mb-4 fw-bold">Rendimiento de Ventas (Últimos 7 días)</h5>
+                        <div style="height: 300px; width: 100%;">
+                            <canvas id="ventasChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="viewVentas" class="ventas-view" style="display:none;">
+            <div id="viewVentas" style="display:none;">
                 <div class="page-topbar mb-4">
                     <div>
                         <h1 class="page-title">Reporte de Ventas</h1>
@@ -123,13 +121,12 @@
                                 <input type="date" id="fechaFin" class="form-control bg-dark text-white border-secondary shadow-none">
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-outline-warning w-100 fw-bold" onclick="cargarReporte()">
+                                <button type="button" class="btn btn-outline-warning w-100 fw-bold" onclick="cargarReporte()">
                                     <i class="fa-solid fa-filter me-2"></i> GENERAR REPORTE
                                 </button>
                             </div>
                         </div>
                     </div>
-
                     <div class="table-shell table-wrapper">
                         <table class="table table-dark table-hover mb-0 align-middle table-transparent">
                             <thead class="thead-gold" style="border-bottom: 2px solid var(--amber);">
@@ -150,47 +147,197 @@
                 </div>
             </div>
 
-            <div id="viewCategorias" class="categories-view" style="display:none;">
-                <div class="page-topbar">
+            <div id="viewCategorias" style="display:none;">
+                <div class="page-topbar mb-4 d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="page-title">Gestión de Categorías</h1>
+                        <h1 class="page-title text-white">Gestión de Categorías</h1>
+                        <p class="page-subtitle text-muted">Selecciona una categoría para gestionar sus productos</p>
+                    </div>
+                    <button type="button" class="btn fw-bold px-4 py-2" style="background-color: var(--amber); color: #000; border-radius: 8px;" onclick="abrirModalProducto()">
+                        <i class="fa-solid fa-plus me-2"></i> AÑADIR PRODUCTO
+                    </button>
+                </div>
+                <div class="page-body">
+                    <div class="search-wrap mb-4" style="background-color: #121212; border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; display: flex; gap: 10px;">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="txtBuscarCat" class="form-control bg-transparent border-0 text-white shadow-none" placeholder="Buscar producto o artista..." onkeyup="buscarGlobal()">
+                        </div>
+                        <button type="button" class="btn fw-bold px-4" style="background-color: var(--amber); color: #000; border-radius: 8px;" onclick="buscarGlobal()">BUSCAR</button>
+                    </div>
+                    <div id="contenedorCategorias" class="row g-3"></div>
+                </div>
+            </div>
+
+            <div id="viewProductos" style="display:none;">
+                <div class="page-topbar mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="page-title text-white" id="txtTituloTabla"><i class="fa-solid fa-box-archive me-3 text-gold"></i>Catálogo de Productos</h1>
+                        <p class="page-subtitle">Sube y gestiona tus Sample Packs, Vocals, MIDIs y Presets</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-warning fw-bold px-4 py-2" onclick="abrirModalProducto()">
+                        <i class="fa-solid fa-plus me-2"></i> SUBIR NUEVO PACK
+                    </button>
+                </div>
+                <div class="page-body">
+                    <div id="contenedorProductos" class="table-shell table-wrapper"></div>
+                </div>
+            </div>
+
+            <div id="viewCupones" style="display:none;">
+                <div class="page-topbar mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="page-title text-gold"><i class="fa-solid fa-ticket me-3"></i>Gestión de Cupones</h1>
+                        <p class="page-subtitle">Crea códigos de descuento para promociones o artistas</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-warning fw-bold px-4 py-2" style="border-radius: 8px;" onclick="abrirModalCupon()">
+                        <i class="fa-solid fa-plus me-2"></i> CREAR CUPÓN
+                    </button>
+                </div>
+                <div class="page-body">
+                    <div class="table-shell table-wrapper">
+                        <table class="table table-dark table-hover mb-0 align-middle table-transparent">
+                            <thead class="thead-gold" style="border-bottom: 2px solid var(--amber);">
+                                <tr>
+                                    <th class="py-3 px-4">Código</th>
+                                    <th>Descuento</th>
+                                    <th>Expiración</th>
+                                    <th>Estado</th>
+                                    <th class="text-end px-4">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbCuponesBody"></tbody>
+                        </table>
+                        <div id="emptyCuponesMsg" class="text-center py-5 empty-msg" style="display:none;">
+                            <i class="fa-solid fa-ticket mb-3 text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-0">No hay cupones registrados.</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="viewProductos" class="products-view" style="display:none;">
-                <div class="page-topbar">
+            <div id="viewUsuarios" style="display:none;">
+                <div class="page-topbar mb-4">
                     <div>
-                        <h1 class="page-title">Todos los Productos</h1>
+                        <h1 class="page-title text-white"><i class="fa-solid fa-users me-3 text-gold"></i>Directorio de Usuarios</h1>
+                        <p class="page-subtitle">Administra los accesos y cuentas de tus clientes</p>
+                    </div>
+                </div>
+                <div class="page-body">
+                    <div class="table-shell table-wrapper">
+                        <table class="table table-dark table-hover mb-0 align-middle table-transparent">
+                            <thead class="thead-gold" style="border-bottom: 2px solid var(--amber);">
+                                <tr>
+                                    <th class="py-3 px-4">Cliente</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Estado</th>
+                                    <th class="text-end px-4">Control de Acceso</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbUsuariosBody"></tbody>
+                        </table>
+                        <div id="emptyUsuariosMsg" class="text-center py-5 empty-msg" style="display:none;">
+                            <i class="fa-solid fa-users-slash mb-3 text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mb-0">No se encontraron usuarios.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary text-white shadow-lg" style="border-radius:15px;">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-gold fw-bold" id="modalTitleProducto"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Añadir/Editar Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formProducto">
+                    <input type="hidden" id="IdProducto" name="IdPro" value="0" />
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">NOMBRE DEL PACK / PLUGIN</label>
+                            <input type="text" id="NomPro" name="NomPro" class="form-control bg-dark text-white border-secondary shadow-none" placeholder="Ej: Vocal Trance Anthem Hooks" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">CATEGORÍA</label>
+                            <select id="IdCate" name="IdCate" class="form-select bg-dark text-white border-secondary shadow-none" required>
+                                <option value="1">Kicks</option>
+                                <option value="2">Drums & Percussion</option>
+                                <option value="3">Bass</option>
+                                <option value="4">Synths & Melodies</option>
+                                <option value="5">Spire</option>
+                                <option value="6">Serum</option>
+                                <option value="7">Dune 3</option>
+                                <option value="8">Sylenth1</option>
+                                <option value="15">Mixing y Mastering</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">PRECIO (USD)</label>
+                                <input type="number" step="0.01" id="Precio" name="Precio" class="form-control bg-dark text-white border-secondary shadow-none" placeholder="29.99" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">ICONO (FONT AWESOME)</label>
+                                <input type="text" id="RutImag" name="RutImag" class="form-control bg-dark text-white border-secondary shadow-none" placeholder="fa-solid fa-compact-disc" value="fa-solid fa-compact-disc">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">DESCRIPCIÓN COMERCIAL</label>
+                            <textarea id="Descripcion" name="Descripcion" rows="3" class="form-control bg-dark text-white border-secondary shadow-none" required></textarea>
+                        </div>
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="Activo" name="Activo" value="true" checked>
+                            <label class="form-check-label text-muted small fw-bold" for="Activo">Producto Activo en Tienda</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">GUARDAR DATOS</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCupon" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary text-white shadow-lg" style="border-radius:15px;">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-gold fw-bold" id="modalTitleCupon"><i class="fa-solid fa-ticket me-2"></i>Crear Cupón</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formCupon">
+                    <input type="hidden" id="IdCupon" name="IdCupon" value="0" />
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">CÓDIGO DEL CUPÓN</label>
+                            <input type="text" id="Codigo" name="Codigo" class="form-control bg-dark text-white border-secondary shadow-none" style="text-transform: uppercase;" placeholder="EJ: TRANCE20" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">DESCUENTO (%)</label>
+                                <input type="number" id="Porcentaje" name="Porcentaje" class="form-control bg-dark text-white border-secondary shadow-none" placeholder="20" min="1" max="100" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">FECHA EXPIRACIÓN</label>
+                                <input type="date" id="FechaExpiracion" name="FechaExpiracion" class="form-control bg-dark text-white border-secondary shadow-none" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">GUARDAR CUPÓN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
-
-    <script>
-        function mostrarView(viewId, linkId) {
-        // Ocultar todas las vistas
-        document.getElementById('viewResumen').style.display = 'none';
-        document.getElementById('viewVentas').style.display = 'none';
-        document.getElementById('viewCategorias').style.display = 'none';
-        document.getElementById('viewProductos').style.display = 'none';
-
-        // Quitar clase 'active' de todos los links
-        document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
-        link.classList.remove('active');
-        });
-
-        // Mostrar la vista seleccionada y marcar el link
-        document.getElementById(viewId).style.display = 'block';
-        document.getElementById(linkId).classList.add('active');
-        }
-    </script>
 </body>
 </html>

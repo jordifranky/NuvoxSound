@@ -10,5 +10,6 @@
         public decimal Precio { get; set; }
         public string RutImag { get; set; }// RutaImagen
         public bool Activo { get; set; }
+        public int DescargasRestantes { get; set; }
     }
 }

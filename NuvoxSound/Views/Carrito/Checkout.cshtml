@@ -1,0 +1,157 @@
+﻿@model List<NuvoxSound.Entities.ItemCarrito>
+@{
+    ViewData["Title"] = "Checkout - Pago Seguro";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/css/carrito.css" asp-append-version="true" />
+
+<div class="nuvox-checkout-page">
+    <div class="checkout-container">
+
+        <div class="col-left">
+            <h2 class="section-title">Selecciona tu método de pago</h2>
+
+            <div class="mb-4">
+                <button type="button" class="btn-paypal-express">
+                    <i class="fa-brands fa-paypal"></i> Pagar con PayPal
+                </button>
+            </div>
+
+            <div class="divider"><span>O PAGA CON TARJETA SEGURO</span></div>
+
+            <form asp-controller="Carrito" asp-action="ProcesarPago" method="post" id="formPago">
+                <div class="payment-box">
+                    <div class="payment-header">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fa-regular fa-credit-card fs-3 text-gold"></i>
+                            <span class="fw-bold fs-5 text-white">Tarjeta de Crédito / Débito</span>
+                        </div>
+                        <div class="brand-icons-colored">
+                            <i id="icon-visa" class="fa-brands fa-cc-visa card-icon"></i>
+                            <i id="icon-mastercard" class="fa-brands fa-cc-mastercard card-icon"></i>
+                            <i id="icon-amex" class="fa-brands fa-cc-amex card-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="payment-body">
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2">NÚMERO DE TARJETA</label>
+                                <input type="text" class="form-control" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="detectarTarjeta()" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2">NOMBRE EN LA TARJETA</label>
+                                <input type="text" class="form-control" placeholder="EJ: JEF KARLEN" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-2">VENCIMIENTO (MM/AA)</label>
+                                <input type="text" class="form-control" placeholder="12/28" maxlength="5" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-2">CÓDIGO (CVV)</label>
+                                <input type="password" class="form-control" placeholder="123" maxlength="4" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-checkout-pay w-100 mt-5 fs-5 py-3">
+                            <i class="fa-solid fa-lock me-2"></i> Pagar £<span id="finalTotal">@Model.Sum(x => (x.Producto?.Precio ?? 0) * x.Cantidad).ToString("0.00")</span>
+                        </button>
+
+                        <div class="text-center mt-4">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i>
+                            <span class="text-muted small">Datos encriptados con SSL de 256 bits.</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-right">
+            <div class="summary-sticky">
+                <h3 class="fw-bold mb-4 text-white">Resumen de Compra</h3>
+
+                <div class="d-flex flex-column gap-3 mb-4 border-bottom border-secondary pb-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="product-thumb">
+                                <i class="@(string.IsNullOrEmpty(item.Producto?.RutImag) ? "fa-solid fa-compact-disc" : item.Producto?.RutImag) text-gold fs-4"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 fw-bold text-white">@item.Producto?.NomPro</h6>
+                                <small class="text-muted">Cant: @item.Cantidad</small>
+                            </div>
+                            <div class="fw-bold text-gold">£@((item.Producto?.Precio * item.Cantidad)?.ToString("0.00"))</div>
+                        </div>
+                    }
+                </div>
+
+                <div class="coupon-section border-bottom border-secondary pb-4 mb-4">
+                    <label class="text-muted small fw-bold">¿TIENES UN CÓDIGO DE DESCUENTO?</label>
+                    <div class="coupon-box">
+                        <input type="text" id="txtCupon" class="coupon-input" placeholder="INGRESA TU CUPÓN">
+                        <button type="button" class="btn-apply-coupon" onclick="aplicarCupon()">APLICAR</button>
+                    </div>
+                    <small id="cuponMensaje" class="text-success fw-bold" style="display:none;"></small>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2 fs-5">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="fw-bold text-white" id="subtotalDisplay">£@Model.Sum(x => (x.Producto?.Precio ?? 0) * x.Cantidad).ToString("0.00")</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary">
+                    <span class="fs-4 fw-bold text-white">TOTAL</span>
+                    <span class="fs-1 fw-bold text-gold">£<span id="totalDisplay">@Model.Sum(x => (x.Producto?.Precio ?? 0) * x.Cantidad).ToString("0.00")</span></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // JS para la detección de la tarjeta
+        function detectarTarjeta() {
+            let input = document.getElementById("cardNumber");
+            let num = input.value.replace(/\s+/g, '');
+
+            document.getElementById("icon-visa").classList.remove("active-brand");
+            document.getElementById("icon-mastercard").classList.remove("active-brand");
+            document.getElementById("icon-amex").classList.remove("active-brand");
+
+            if (num.match(/^4/)) document.getElementById("icon-visa").classList.add("active-brand");
+            else if (num.match(/^5[1-5]/)) document.getElementById("icon-mastercard").classList.add("active-brand");
+            else if (num.match(/^3[47]/)) document.getElementById("icon-amex").classList.add("active-brand");
+
+            if (num.length > 0) input.value = num.match(new RegExp('.{1,4}', 'g')).join(' ');
+        }
+
+        // JS Simulado para el Cupón
+        function aplicarCupon() {
+            let codigo = document.getElementById("txtCupon").value.trim().toUpperCase();
+            let msg = document.getElementById("cuponMensaje");
+
+            if(codigo === "NUVOX50") {
+                msg.style.display = "block";
+                msg.className = "text-success fw-bold mt-2";
+                msg.innerHTML = "<i class='fa-solid fa-check'></i> Cupón del 50% aplicado";
+
+                // Calculamos el descuento visual
+                let sub = parseFloat(document.getElementById("subtotalDisplay").innerText.replace('£',''));
+                let nuevoTotal = (sub * 0.5).toFixed(2);
+
+                document.getElementById("totalDisplay").innerText = nuevoTotal;
+                document.getElementById("finalTotal").innerText = nuevoTotal;
+            } else {
+                msg.style.display = "block";
+                msg.className = "text-danger fw-bold mt-2";
+                msg.innerHTML = "<i class='fa-solid fa-xmark'></i> Cupón inválido";
+            }
+        }
+    </script>
+}

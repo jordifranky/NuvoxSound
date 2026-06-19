@@ -1,0 +1,35 @@
+﻿/* Estilos para la boleta de pago PDF */
+body {
+    background-color: #e9ecef;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.receipt-container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.receipt-header {
+    border-bottom: 2px dashed #000;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.receipt-footer {
+    border-top: 2px dashed #000;
+    padding-top: 20px;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.table-borderless td, .table-borderless th {
+    border: none;
+    padding: 12px 0;
+}
+
+.border-bottom-dashed {
+    border-bottom: 1px dashed #ccc;
+}

@@ -37,7 +37,8 @@ namespace NuvoxSound.Data
                                 Nombres = dr["Nombres"].ToString() ?? string.Empty,
                                 Apellidos = dr["Apellidos"].ToString() ?? string.Empty,
                                 NombreRol = dr["NombreRol"].ToString() ?? string.Empty,
-                                PasswordHash = dr["PasswordHash"].ToString() ?? string.Empty
+                                PasswordHash = dr["PasswordHash"].ToString() ?? string.Empty,
+                                IdRol = Convert.ToInt32(dr["IdRol"])
                             };
                         }
                     }
@@ -85,5 +86,69 @@ namespace NuvoxSound.Data
             }
             return idGenerado;
         } //Fin del metodo RegistroUsuario
+
+        // Método para listar a todos los usuarios en el panel de administrador
+        public List<Usuario> ListarUsuarios()
+        {
+            List<Usuario> lista = new List<Usuario>();
+
+            using (var conexion = new SqlConnection(cn))
+            {
+               
+                SqlCommand cmd = new SqlCommand("usp_ListarUsuarios", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    conexion.Open();
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new Usuario()
+                            {
+                                IdUsuario = Convert.ToInt32(dr["IdUsuario"]),
+                                Nombres = dr["Nombres"].ToString() ?? string.Empty,
+                                Apellidos = dr["Apellidos"].ToString() ?? string.Empty,
+                                Correo = dr["Correo"].ToString() ?? string.Empty,
+                               
+                                Activo = dr["Activo"] != DBNull.Value ? Convert.ToBoolean(dr["Activo"]) : true
+                            });
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    return lista; 
+                }
+            }
+            return lista;
+        } //fin del metodo ListarUsuarios
+
+        // Método para activar o bloquear el acceso de un usuario
+        public bool ActualizarEstado(int id, bool estado)
+        {
+            bool respuesta = false;
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+                
+                SqlCommand cmd = new SqlCommand("usp_ActualizarEstadoUsuario", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@IdUsuario", id);
+                cmd.Parameters.AddWithValue("@Activo", estado);
+
+                try
+                {
+                    conexion.Open();
+                    cmd.ExecuteNonQuery();
+                    respuesta = true;
+                }
+                catch (Exception)
+                {
+                    respuesta = false;
+                }
+            }
+            return respuesta;
+        }//fin del metodo ActualizarEstado
     }
 }

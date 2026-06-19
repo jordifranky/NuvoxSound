@@ -2487,3 +2487,54 @@ body {
     font-size: 0.85rem;
     padding: 12px;
 }
+
+/* ========================================================
+   VISTA DE CONFIRMACIÓN DE PAGO (COMPRA EXITOSA)
+   ======================================================== */
+.checkout-success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 20px;
+}
+
+.checkout-success-card {
+    width: 100%;
+    max-width: 600px;
+    background-color: #0b1021; /* Fondo oscuro marino Nuvox */
+    border: 1px solid #c9a84c; /* Borde dorado */
+    border-radius: 15px;
+}
+
+.success-icon-wrap i {
+    font-size: 6rem;
+    color: #28a745; /* Verde éxito */
+    filter: drop-shadow(0 0 15px rgba(40, 167, 69, 0.4)); /* Resplandor neón */
+}
+
+.redirect-alert {
+    background: rgba(0, 210, 255, 0.1); /* Fondo azul translúcido */
+    border: 1px solid rgba(0, 210, 255, 0.3); /* Borde azul neón */
+    border-radius: 10px;
+    padding: 15px;
+    color: #00d2ff;
+}
+
+.btn-nuvox-primary {
+    background-color: #c9a84c;
+    color: #000;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.3s ease;
+}
+
+    .btn-nuvox-primary:hover {
+        background-color: #e5c363; /* Dorado más claro al pasar el mouse */
+        transform: scale(1.05);
+        color: #000;
+    }

@@ -28,7 +28,8 @@ namespace NuvoxSound.Controllers
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }
-                return RedirectToAction("Index", "Home");
+                // Si es cliente, va a su librería
+                return RedirectToAction("Index", "Cliente");
             }
             return View();
         }
@@ -45,7 +46,6 @@ namespace NuvoxSound.Controllers
                     new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
                     new Claim(ClaimTypes.Name, usuario.Nombres),
                     new Claim(ClaimTypes.Email, usuario.Correo),
-                    // AQUÍ ESTÁ LA CLAVE: Guardamos el ID del Rol en la cookie
                     new Claim(ClaimTypes.Role, usuario.IdRol.ToString())
                 };
 
@@ -53,14 +53,14 @@ namespace NuvoxSound.Controllers
 
                 await HttpContext.SignInAsync("NuvoxCookie", new ClaimsPrincipal(claimsIdentity));
 
-                // REDIRECCIÓN INTELIGENTE
+                // REDIRECCIÓN INTELIGENTE FINAL
                 if (usuario.IdRol == 1) // 1 = Administrador
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }
                 else // Cualquier otro rol = Cliente
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Cliente");
                 }
             }
 
@@ -85,7 +85,7 @@ namespace NuvoxSound.Controllers
         public IActionResult Registro(Usuario usuario, string password)
         {
             // Asignamos rol de Cliente por defecto en el registro público
-            usuario.IdRol = 2; // OJO: Si 1 es Admin, 2 debería ser Cliente según tu BD
+            usuario.IdRol = 2;
             usuario.Activo = true;
 
             int Resultado = _usuarioBusiness.RegistroUsuario(usuario, password);
@@ -96,6 +96,13 @@ namespace NuvoxSound.Controllers
             }
             ViewBag.Error = "Error al registrar el usuario.";
             return View(usuario);
+        }
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            
+            TempData["SweetError"] = "No tienes permisos de administrador para ver esta sección.";
+            return RedirectToAction("Login", "Auth");
         }
     }
 }

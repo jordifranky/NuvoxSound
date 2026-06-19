@@ -1,67 +1,93 @@
-﻿@model IEnumerable<NuvoxSound.Entities.ItemCarrito>
-
+﻿@model List<NuvoxSound.Entities.ItemCarrito>
 @{
-    ViewData["Title"] = "Mi Carrito - Nuvox Sound";
+    ViewData["Title"] = "Tu Carrito";
 }
 
-<div class="container mt-5">
-    <h2 class="mb-4"><i class="fa-solid fa-cart-shopping me-2"></i>Mi Carrito de Compras</h2>
+<link rel="stylesheet" href="~/css/carrito.css" asp-append-version="true" />
+
+<div class="container cart-wrapper">
+    <h1 class="cart-title">Mi <span class="cart-title-gold">Carrito</span> de Compras</h1>
 
     @if (Model == null || !Model.Any())
     {
-        <div class="alert alert-light border text-center py-5 shadow-sm">
-            <i class="fa-solid fa-box-open fs-1 text-muted mb-3"></i>
-            <h4 class="text-muted">Tu carrito está vacío.</h4>
-            <p>¡Explora nuestro catálogo y encuentra los mejores sonidos para tu próxima producción!</p>
-            <a asp-controller="Producto" asp-action="Index" class="btn btn-dark mt-3 px-4">Ir al Catálogo</a>
+        <div class="cart-box cart-empty-state">
+            <i class="fa-solid fa-cart-arrow-down"></i>
+            <h3 class="text-white fw-bold mb-3">Tu carrito está vacío</h3>
+            <p class="text-muted mb-4 fs-5">¡Explora nuestro catálogo y encuentra los mejores sonidos para tu próxima producción!</p>
+            <a href="/" class="btn-nuvox-primary text-decoration-none d-inline-flex align-items-center gap-2" style="font-size: 1.1rem; padding: 15px 30px;">
+                <i class="fa-solid fa-store"></i> IR AL CATÁLOGO
+            </a>
         </div>
     }
     else
     {
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-hover align-middle mb-0 bg-white border">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Producto</th>
-                        <th>Categoría</th>
-                        <th class="text-center">Precio Unitario</th>
-                        <th class="text-center">Cantidad</th>
-                        <th class="text-end">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="fw-bold fs-5">
-                                <i class="@(item.Producto?.RutImag) text-secondary me-2"></i> @item.Producto?.NomPro
-                            </td>
-                            <td><span class="badge bg-secondary">@item.Producto?.NomCat</span></td>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="cart-box">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th class="text-center">Cant.</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3 flex-column flex-md-row">
+                                            <div class="cart-prod-icon">
+                                                <i class="@(string.IsNullOrEmpty(item.Producto?.RutImag) ? "fa-solid fa-compact-disc" : item.Producto?.RutImag)"></i>
+                                            </div>
+                                            <span class="fs-5 fw-bold">@item.Producto?.NomPro</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-muted fs-5">£@item.Producto?.Precio.ToString("0.00")</td>
+                                    <td class="text-center fs-5 fw-bold">@item.Cantidad</td>
 
-                            <td class="text-center text-muted">$@((item.Producto?.Precio ?? 0).ToString("0.00"))</td>
+                                    <td class="cart-title-gold fs-5 fw-bold">£@((item.Producto?.Precio * item.Cantidad)?.ToString("0.00"))</td>
+                                    <td class="text-end">
+                                        <form asp-controller="Carrito" asp-action="Eliminar" method="post">
 
-                            <td class="text-center fw-bold">@item.Cantidad</td>
-                            <td class="text-end fw-bold text-success">$@item.SubTotal.ToString("0.00")</td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot class="table-light">
-                    <tr>
-                        <td colspan="4" class="text-end fs-5 fw-bold py-3">TOTAL A PAGAR:</td>
-                        <td class="text-end fs-3 fw-bold text-success py-3">$@Model.Sum(i => i.SubTotal).ToString("0.00")</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+                                            <input type="hidden" name="idProducto" value="@item.Producto?.IdPro" />
 
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <a asp-controller="Producto" asp-action="Index" class="btn btn-outline-dark">
-                <i class="fa-solid fa-arrow-left me-2"></i> Seguir Comprando
-            </a>
+                                            <button type="submit" class="btn btn-outline-danger border-0 fs-5 p-2 rounded-circle" title="Eliminar">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
 
-            <a asp-controller="Carrito" asp-action="ProcesarPago" class="btn btn-success btn-lg px-5 shadow">
-                Proceder al Pago <i class="fa-solid fa-credit-card ms-2"></i>
-            </a>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="cart-box sticky-top" style="top: 100px;">
+                    <h4 class="text-white fw-bold mb-4 border-bottom border-secondary pb-3">Resumen</h4>
+
+                    <div class="d-flex justify-content-between mb-3 fs-5">
+                        <span class="text-muted">Plugins / Samples:</span>
+                        <span class="fw-bold">@Model.Sum(x => x.Cantidad)</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4 mt-4 pt-3 border-top border-secondary">
+                        <span class="fs-4 fw-bold">TOTAL:</span>
+                        <span class="cart-title-gold fs-3 fw-bold">£@Model.Sum(x => (x.Producto?.Precio ?? 0) * x.Cantidad).ToString("0.00")</span>
+                    </div>
+
+                    <a href="/Carrito/Checkout" class="btn-pay text-decoration-none">
+                        <i class="fa-solid fa-credit-card me-2"></i> Ir al Checkout
+                    </a>
+
+                </div>
+            </div>
         </div>
     }
 </div>

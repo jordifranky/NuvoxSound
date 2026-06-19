@@ -1,9 +1,26 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@using System.Text.Json
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    int totalItems = 0;
+    var dataSesion = HttpContextAccessor.HttpContext?.Session.GetString("CarritoIDs");
+    if (!string.IsNullOrEmpty(dataSesion))
+    {
+        var diccionario = JsonSerializer.Deserialize<Dictionary<int, int>>(dataSesion);
+        if (diccionario != null)
+        {
+            totalItems = diccionario.Values.Sum(); 
+        }
+    }
+}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - NuvoxSound</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -50,25 +67,27 @@
 
                 <button class="nav-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
 
-                <!-- LÓGICA DE SESIÓN Y ROLES -->
+                
                 @if (User.Identity!.IsAuthenticated)
                 {
-                    <!-- Solo los Administradores (Rol 1) verán el acceso al Dashboard -->
                     @if (User.IsInRole("1"))
                     {
-                        <a asp-controller="Dashboard" asp-action="Index" class="nav-btn" style="color: var(--success);" title="Panel de Administración">
+                        
+                        <a asp-controller="Dashboard" asp-action="Index" class="nav-btn" style="color: var(--amber);" title="Panel de Administración">
                             <i class="fa-solid fa-user-shield"></i>
                         </a>
                     }
-
-                    <!-- El botón de Cerrar Sesión lo ven todos los usuarios autenticados -->
-                    <a asp-controller="Auth" asp-action="Logout" class="nav-btn" style="color: var(--error);" title="Cerrar Sesión">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </a>
+                    else
+                    {
+                        
+                        <a asp-controller="Cliente" asp-action="Index" class="nav-btn" style="color: var(--amber);" title="Mi Librería">
+                            <i class="fa-solid fa-circle-user"></i>
+                        </a>
+                    }
                 }
                 else
                 {
-                    <!-- Si no hay sesión, se muestra el botón de Login estándar -->
+                    
                     <a asp-controller="Auth" asp-action="Login" class="nav-btn" title="Iniciar Sesión">
                         <i class="fa-regular fa-user"></i>
                     </a>
@@ -76,7 +95,10 @@
 
                 <a href="/Carrito/Index" class="nav-btn cart-btn">
                     <i class="fa-solid fa-bag-shopping"></i>
-                    <span class="cart-badge visible">1</span>
+                    @if (totalItems > 0)
+                    {
+                        <span class="cart-badge visible">@totalItems</span>
+                    }
                 </a>
             </div>
         </div>

@@ -15,12 +15,16 @@
 </head>
 <body class="auth-body d-flex align-items-center justify-content-center">
 
+    <!-- Botón flotante para regresar al Home -->
+    <a href="/" class="position-absolute top-0 start-0 m-4 text-decoration-none auth-link d-flex align-items-center" style="z-index: 10; font-weight: 600; letter-spacing: 0.05em; font-size: 0.9rem;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Volver a la Tienda
+    </a>
+
     <!-- Fondo interactivo -->
     <div class="hero-orb hero-orb-1" style="opacity: 0.6;"></div>
     <div class="hero-orb hero-orb-2" style="opacity: 0.6;"></div>
     <div class="hero-grid"></div>
 
-    <!-- my-5 agrega margen arriba y abajo por si la pantalla del usuario es muy pequeña y necesita hacer scroll -->
     <div class="container d-flex justify-content-center my-5">
         <div class="auth-card p-5 w-100" style="max-width: 32rem;">
 
@@ -45,7 +49,6 @@
 
             <form action="/Auth/Registro" method="post">
 
-                <!-- Fila para Nombres y Apellidos (2 columnas) -->
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <label class="auth-form-label">Nombres</label>

@@ -2,19 +2,47 @@
     ViewData["Title"] = "Compra Exitosa - Nuvox Sound";
 }
 
-<div class="container mt-5 text-center">
-    <div class="card shadow border-0 py-5">
-        <div class="card-body">
-            <i class="fa-solid fa-circle-check text-success" style="font-size: 5rem;"></i>
-            <h1 class="display-5 fw-bold mt-3">¡Pago Procesado con Éxito!</h1>
-            <p class="lead text-muted mt-3">Tu compra ha sido registrada correctamente de forma segura en nuestros servidores.</p>
-            <p>Tus Sample Packs y recursos digitales ya están disponibles en tu <strong>Librería Virtual</strong>.</p>
-            
-            <hr class="my-4 w-50 mx-auto" />
-            
-            <a asp-controller="Producto" asp-action="Index" class="btn btn-dark btn-lg px-4 mt-2">
-                Volver al Catálogo
+<div class="checkout-success-container">
+    <div class="checkout-success-card shadow-lg text-center">
+        <div class="card-body p-5">
+
+            <div class="success-icon-wrap mb-4">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <h2 class="text-white fw-bold mb-3">¡Pago Procesado con Éxito!</h2>
+            <p class="text-muted fs-5 mb-4">Tu compra ha sido registrada correctamente de forma segura en nuestros servidores.</p>
+
+            <div class="redirect-alert mt-4 mb-4">
+                <p class="mb-0 fw-bold">
+                    <i class="fa-solid fa-spinner fa-spin me-2"></i>
+                    Redirigiendo a tus compras en <span id="contador" class="fs-4 mx-1 text-white">5</span> segundos...
+                </p>
+            </div>
+
+            <a href="/Cliente/Index" class="btn-nuvox-primary">
+                Ir a mis compras ahora <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
+
         </div>
     </div>
 </div>
+
+<!-- Lógica del temporizador de 5 segundos -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let tiempoRestante = 5;
+        const elementoContador = document.getElementById('contador');
+
+        const intervalo = setInterval(() => {
+            tiempoRestante--;
+            elementoContador.textContent = tiempoRestante;
+
+            if (tiempoRestante <= 0) {
+                clearInterval(intervalo);
+                // Aquí redirige al panel del cliente automáticamente
+                window.location.href = '/Cliente/Index';
+            }
+        }, 1000); // 1000 ms = 1 segundo
+    });
+</script>

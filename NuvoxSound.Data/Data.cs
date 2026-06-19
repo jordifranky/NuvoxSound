@@ -6,14 +6,14 @@ using NuvoxSound.Entities;
 
 namespace NuvoxSound.Data
 {
-    public class DashboardData
+    public class Data 
     {
         private readonly string _cadenaConexion;
 
-        // Inyectamos la configuración para leer la cadena de conexión de appsettings.json
-        public DashboardData(IConfiguration configuration)
+        public Data(IConfiguration configuration)
         {
-            _cadenaConexion = configuration.GetConnectionString("CadenaSQL")!;
+            //Usamos "cn" que es la clave real de tu appsettings.json
+            _cadenaConexion = configuration.GetConnectionString("cn") ?? string.Empty;
         }
 
         public DashboardResumen ObtenerResumen()
@@ -32,15 +32,19 @@ namespace NuvoxSound.Data
                     {
                         if (dr.Read())
                         {
-                            resumen.TotalUsuarios = Convert.ToInt32(dr["TotalUsuarios"]);
-                            resumen.TotalProductos = Convert.ToInt32(dr["TotalProductos"]);
-                            resumen.TotalVentas = Convert.ToDecimal(dr["TotalVentas"]);
+                            // Escudo protector por si algún campo viene vacío en SQL
+                            resumen.TotalUsuarios = dr["TotalUsuarios"] != DBNull.Value ? Convert.ToInt32(dr["TotalUsuarios"]) : 0;
+                            resumen.TotalProductos = dr["TotalProductos"] != DBNull.Value ? Convert.ToInt32(dr["TotalProductos"]) : 0;
+
+                            // SUM en SQL devuelve decimal, lo leemos de forma segura
+                            resumen.TotalVentas = dr["TotalVentas"] != DBNull.Value ? Convert.ToDecimal(dr["TotalVentas"]) : 0.00m;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error al obtener datos del Dashboard: " + ex.Message);
+                    // Esto te pintará el error real en la consola de Visual Studio si algo falla
+                    Console.WriteLine("Error crítico en Dashboard: " + ex.Message);
                 }
             }
             return resumen;

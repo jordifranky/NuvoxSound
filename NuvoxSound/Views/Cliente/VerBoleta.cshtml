@@ -1,0 +1,108 @@
+﻿@model NuvoxSound.Entities.BoletaFisica
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Boleta #NVX-@(Model.IdVenta.ToString("D4"))</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/receipt.css" asp-append-version="true" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <div class="text-center mt-4 mb-2" id="botoneraControles">
+        <button onclick="descargarPDF()" class="btn fw-bold shadow me-2" style="background-color: #dc3545; color: white;">
+            <i class="fa-solid fa-file-pdf"></i> DESCARGAR PDF
+        </button>
+        <button onclick="window.close()" class="btn btn-dark fw-bold shadow">CERRAR VENTANA</button>
+    </div>
+
+    <div class="receipt-container" id="boletaDocumento">
+
+        <div class="receipt-header text-center">
+            <i class="fa-solid fa-compact-disc fa-3x mb-2"></i>
+            <h2 class="fw-bold m-0" style="letter-spacing: 2px;">NUVOX SOUND</h2>
+            <p class="m-0 text-muted">San Juan de Lurigancho, Lima - Perú</p>
+            <p class="m-0 text-muted">COMPROBANTE ELECTRÓNICO</p>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-6">
+                <p class="m-0"><strong>CLIENTE:</strong> @Model.ClienteNombres</p>
+                <p class="m-0"><strong>CORREO:</strong> @Model.ClienteCorreo</p>
+            </div>
+            <div class="col-6 text-end">
+                <p class="m-0"><strong>BOLETA N°:</strong> <span class="fs-5 fw-bold">#NVX-@(Model.IdVenta.ToString("D4"))</span></p>
+                <p class="m-0"><strong>FECHA EMISIÓN:</strong> @Model.FechaVenta.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="m-0"><strong>ESTADO PAGO:</strong> @Model.Estado.ToUpper()</p>
+            </div>
+        </div>
+
+        <table class="table table-borderless mb-5">
+            <thead class="border-bottom-dashed">
+                <tr>
+                    <th class="text-start">CANT.</th>
+                    <th class="text-start">DESCRIPCIÓN DEL PRODUCTO</th>
+                    <th class="text-end">P. UNIT</th>
+                    <th class="text-end">IMPORTE</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Detalles)
+                {
+                    <tr class="border-bottom-dashed">
+                        <td class="text-start align-middle">@item.Cantidad</td>
+                        <td class="text-start align-middle">
+                            <strong style="font-size: 1.1rem;">@item.NombreProducto</strong><br />
+                            <small class="text-muted" style="font-family: sans-serif;">@item.Descripcion</small>
+                        </td>
+                        <td class="text-end align-middle">$@item.PrecioUnitario.ToString("0.00")</td>
+                        <td class="text-end align-middle fw-bold">$@item.SubTotal.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end mb-4">
+            <div class="text-end p-3" style="border: 2px solid #000; border-radius: 8px; width: 300px;">
+                <h4 class="fw-bold m-0 d-flex justify-content-between">
+                    <span>TOTAL:</span>
+                    <span>$@Model.Total.ToString("0.00")</span>
+                </h4>
+            </div>
+        </div>
+
+        <div class="receipt-footer">
+            <p class="m-0 fw-bold fs-5">¡GRACIAS POR TU COMPRA!</p>
+            <p class="m-0 mt-2 small text-muted" style="font-family: sans-serif;">Las licencias de uso comercial están incluidas y vinculadas a tu cuenta de usuario.</p>
+
+            <div class="mt-4">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=Nuvox-Boleta-NVX-@(Model.IdVenta)" alt="Código QR de Seguridad" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function descargarPDF() {
+        document.getElementById('botoneraControles').style.display = 'none';
+        const element = document.getElementById('boletaDocumento');
+        const opt = {
+        margin: [10, 0, 10, 0],
+        filename: 'Boleta_Nuvox_NVX_@(Model.IdVenta.ToString("D4")).pdf',
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+        document.getElementById('botoneraControles').style.display = 'block';
+        });
+        }
+    </script>
+</body>
+</html>
