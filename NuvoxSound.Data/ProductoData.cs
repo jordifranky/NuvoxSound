@@ -53,7 +53,7 @@ namespace NuvoxSound.Data
             }
             return lista;
         }
-        // Método para insertar (si IdPro es 0) o actualizar un producto
+        
         public bool Guardar(Producto obj)
         {
             bool respuesta = false;
@@ -71,7 +71,7 @@ namespace NuvoxSound.Data
                     conexion.Open();
                     if (obj.IdPro == 0)
                     {
-                        // 1. INSERTAR NUEVO PRODUCTO
+                       
                         cmd.CommandText = "usp_InsertarProducto";
                         cmd.Parameters.AddWithValue("@IdCategoria", obj.IdCate == 0 ? 1 : obj.IdCate);
                         cmd.Parameters.AddWithValue("@IdArtista", idArtistaDefecto);
@@ -82,7 +82,7 @@ namespace NuvoxSound.Data
                         cmd.Parameters.AddWithValue("@RutaDemoAudio", DBNull.Value);
                         cmd.Parameters.AddWithValue("@RutaArchivo", DBNull.Value);
 
-                        // Tu SP exige este parámetro de salida
+                        
                         SqlParameter outputId = new SqlParameter("@IdProductoNuevo", SqlDbType.Int) { Direction = ParameterDirection.Output };
                         cmd.Parameters.Add(outputId);
 
@@ -167,5 +167,93 @@ namespace NuvoxSound.Data
             }
             return lista;
         }
+        // =======================================================
+        // OBTENER LISTA DE ARTISTAS DINÁMICA
+        // =======================================================
+       
+        public object ObtenerArtistas()
+        {
+            var lista = new List<object>();
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+                
+                SqlCommand cmd = new SqlCommand("usp_ListarArtistas", conexion);
+                cmd.CommandType = CommandType.StoredProcedure; 
+
+                try
+                {
+                    conexion.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new
+                            {
+                                idArtista = Convert.ToInt32(dr["IdArtista"]),
+                                nombreArtista = dr["NombreArtista"].ToString()
+                            });
+                        }
+                    }
+                }
+                catch (Exception) { }
+            }
+            return lista;
+        } //Fin del metodo ObtenerArtistas
+
+        // =======================================================
+        // GUARDAR PRODUCTO (VÍA STORED PROCEDURE)
+        // =======================================================
+        public string GuardarProductoSP(
+            int idPro, string nomPro, int idCate, int idArtista, decimal precio,
+            string rutImag, string descripcion, bool activo,
+            string rutaImagen, string rutaAudio, string rutaZip, string enlaceDescarga)
+        {
+            try
+            {
+                using (SqlConnection conexion = new SqlConnection(cn))
+                {
+                    string nombreSP = (idPro == 0) ? "usp_InsertarProducto" : "usp_ActualizarProducto";
+
+                    SqlCommand cmd = new SqlCommand(nombreSP, conexion);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    if (idPro != 0) { cmd.Parameters.AddWithValue("@IdProducto", idPro); }
+
+                    cmd.Parameters.AddWithValue("@IdCategoria", idCate);
+                    cmd.Parameters.AddWithValue("@IdArtista", idArtista);
+                    cmd.Parameters.AddWithValue("@NombreProducto", nomPro);
+                    cmd.Parameters.AddWithValue("@Descripcion", string.IsNullOrEmpty(descripcion) ? "" : descripcion);
+                    cmd.Parameters.AddWithValue("@Precio", precio);
+                    cmd.Parameters.AddWithValue("@Activo", activo);
+
+                    string imagenFinal = string.IsNullOrEmpty(rutaImagen) ? (string.IsNullOrEmpty(rutImag) ? null : rutImag) : rutaImagen;
+
+                  
+                    cmd.Parameters.AddWithValue("@RutaImagen", (object)imagenFinal ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@RutaDemoAudio", (object)rutaAudio ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@RutaArchivo", (object)rutaZip ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@EnlaceExterno", (object)enlaceDescarga ?? DBNull.Value);
+
+                    if (idPro == 0)
+                    {
+                        SqlParameter outParam = new SqlParameter("@IdProductoNuevo", SqlDbType.Int);
+                        outParam.Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add(outParam);
+                    }
+
+                    conexion.Open();
+                    cmd.ExecuteNonQuery();
+
+                    
+                    return "OK";
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                return ex.Message;
+            }
+        } // fin del metodo GuardarProductoSP
     }
+
 }

@@ -1,5 +1,5 @@
 ﻿/* =====================================================
-   NUVOX ADMIN — admin-dashboard.js (Versión Nativa)
+   NUVOX ADMIN — admin-dashboard.js (HTML5 DIALOG NATIVO)
    ===================================================== */
 
 let allProducts = [];
@@ -36,25 +36,34 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formCup) formCup.addEventListener('submit', guardarCupon);
 
     cargarDatosGenerales();
+    cargarArtistas();
 });
 
-// Función de seguridad por si el modal se cierra mal
-function limpiarFondoModal() {
-    const backdrops = document.querySelectorAll('.modal-backdrop');
-    backdrops.forEach(b => b.remove());
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
+
+// ─── LÓGICA DE PRODUCTOS Y ARTISTAS ───────────────────────
+
+function cargarArtistas() {
+    fetch('/Dashboard/ObtenerArtistas')
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                const select = document.getElementById('IdArtista');
+                if (!select) return;
+
+                select.innerHTML = '';
+                res.data.forEach(a => {
+                    select.innerHTML += `<option value="${a.idArtista}">${a.nombreArtista}</option>`;
+                });
+            }
+        })
+        .catch(e => console.log('Error cargando artistas:', e));
 }
 
-// ─── APERTURA DE MODALES ──────────────────────────────────
 function abrirModalProducto() {
     document.getElementById('formProducto').reset();
     document.getElementById('IdProducto').value = '0';
     document.getElementById('modalTitleProducto').innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-2"></i>Añadir Nuevo Producto';
-
-    const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalProducto'));
-    myModal.show();
+    document.getElementById('modalProducto').showModal();
 }
 
 function editarProducto(id) {
@@ -68,28 +77,53 @@ function editarProducto(id) {
     document.getElementById('RutImag').value = p.rutImag || p.rutaImagen || '';
     document.getElementById('Descripcion').value = p.descripcion || '';
     document.getElementById('Activo').checked = p.activo;
-    document.getElementById('modalTitleProducto').innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i>Editar Producto';
 
-    const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalProducto'));
-    myModal.show();
+    if (p.idArtista) document.getElementById('IdArtista').value = p.idArtista;
+
+    document.getElementById('modalTitleProducto').innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i>Editar Producto';
+    document.getElementById('modalProducto').showModal();
 }
 
 function guardarProducto(e) {
     e.preventDefault();
+
+    const btnSubmit = e.target.querySelector('button[type="submit"]');
+    const textoOriginal = btnSubmit.innerHTML;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> SUBIENDO ARCHIVOS...';
+
     const data = new FormData(document.getElementById('formProducto'));
 
-    fetch('/Dashboard/GuardarProducto', { method: 'POST', body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalProducto'));
-                myModal.hide();
-                setTimeout(limpiarFondoModal, 300);
+    if (!document.getElementById('Activo').checked) {
+        data.append('Activo', 'false');
+    }
 
-                Swal.fire({ icon: 'success', title: 'Guardado', background: '#121212', color: '#fff', timer: 1500, showConfirmButton: false });
+    fetch('/Dashboard/GuardarProducto', { method: 'POST', body: data })
+        .then(r => {
+            if (!r.ok) throw new Error("Código " + r.status + " en el servidor.");
+            return r.json();
+        })
+        .then(res => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = textoOriginal;
+
+            // 🔥 CIERRE OBLIGATORIO: Se ejecuta siempre, haya éxito o error
+            document.getElementById('modalProducto').close();
+
+            if (res.success) {
+                Swal.fire({ icon: 'success', title: '¡Pack Guardado!', background: '#121212', color: '#fff', timer: 1500, showConfirmButton: false });
                 cargarDatosGenerales();
                 setTimeout(() => mostrarView('viewProductos', 'linkProductos'), 500);
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error en BD', text: res.message, background: '#121212', color: '#fff' });
             }
+        })
+        .catch(err => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = textoOriginal;
+            // 🔥 CIERRE OBLIGATORIO: Si hay error de red
+            document.getElementById('modalProducto').close();
+            Swal.fire({ icon: 'error', title: 'Fallo de Conexión', text: err.message, background: '#121212', color: '#fff' });
         });
 }
 
@@ -104,7 +138,106 @@ function eliminarProducto(id) {
         });
 }
 
-// ─── NAVEGACIÓN Y OTRAS FUNCIONES ─────────────────────────
+
+// ─── LÓGICA DE CUPONES ───────────────────────────────────────
+function abrirModalCupon() {
+    document.getElementById('formCupon').reset();
+    document.getElementById('IdCupon').value = '0';
+    document.getElementById('modalCupon').showModal();
+}
+
+function guardarCupon(e) {
+    e.preventDefault();
+    const data = new FormData(document.getElementById('formCupon'));
+
+    fetch('/Dashboard/GuardarCupon', { method: 'POST', body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                document.getElementById('modalCupon').close();
+                Swal.fire({ icon: 'success', title: 'Guardado', background: '#121212', color: '#fff', timer: 1500, showConfirmButton: false });
+                cargarCupones();
+            }
+        });
+}
+
+function cargarCupones() {
+    fetch('/Dashboard/ObtenerCupones')
+        .then(r => r.json())
+        .then(res => {
+            allCupones = res.data || [];
+            let tbody = document.getElementById('tbCuponesBody');
+            if (allCupones.length === 0) {
+                if (tbody) tbody.innerHTML = '';
+                document.getElementById('emptyCuponesMsg').style.display = 'block';
+                return;
+            }
+            document.getElementById('emptyCuponesMsg').style.display = 'none';
+            if (tbody) tbody.innerHTML = allCupones.map(c => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td class="fw-bold fs-5 px-4 text-warning">${c.codigo}</td>
+                    <td class="text-white fw-bold">-${c.porcentaje}% OFF</td>
+                    <td class="text-muted">${c.fechaExpiracion}</td>
+                    <td><span class="badge bg-success">Activo</span></td>
+                    <td class="text-end px-4">
+                        <button class="btn btn-sm btn-outline-danger border-0 fs-5 p-2 rounded-circle" onclick="eliminarCupon(${c.idCupon})"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                </tr>`).join('');
+        });
+}
+
+function eliminarCupon(id) {
+    Swal.fire({ title: '¿Eliminar Cupón?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', background: '#121212', color: '#fff' })
+        .then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/Dashboard/EliminarCupon?id=${id}`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(res => { if (res.success) cargarCupones(); });
+            }
+        });
+}
+
+
+// ─── LÓGICA DE USUARIOS ──────────────────────────────────────
+function cargarUsuarios() {
+    fetch('/Dashboard/ObtenerUsuarios')
+        .then(r => r.json())
+        .then(res => {
+            allUsuarios = res.data || [];
+            let tbody = document.getElementById('tbUsuariosBody');
+            if (allUsuarios.length === 0) {
+                if (tbody) tbody.innerHTML = '';
+                document.getElementById('emptyUsuariosMsg').style.display = 'block';
+                return;
+            }
+            document.getElementById('emptyUsuariosMsg').style.display = 'none';
+            if (tbody) tbody.innerHTML = allUsuarios.map(u => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td class="px-4 fw-bold text-white"><i class="fa-solid fa-user-circle me-2 text-muted"></i>${u.nombres} ${u.apellidos}</td>
+                    <td class="text-muted">${u.correo}</td>
+                    <td><span class="badge ${u.activo ? 'bg-success' : 'bg-danger'}">${u.activo ? 'Activo' : 'Bloqueado'}</span></td>
+                    <td class="text-end px-4">
+                        <button class="btn btn-sm ${u.activo ? 'btn-outline-danger' : 'btn-outline-success'} fw-bold" onclick="cambiarEstadoUsuario(${u.idUsuario}, ${!u.activo})">
+                            <i class="fa-solid ${u.activo ? 'fa-ban' : 'fa-check'} me-1"></i> ${u.activo ? 'Bloquear' : 'Activar'}
+                        </button>
+                    </td>
+                </tr>`).join('');
+        });
+}
+
+function cambiarEstadoUsuario(id, estadoNuevo) {
+    Swal.fire({ title: '¿Cambiar acceso del usuario?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ffc107', background: '#121212', color: '#fff' })
+        .then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/Dashboard/CambiarEstadoUsuario?id=${id}&estado=${estadoNuevo}`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(res => { if (res.success) cargarUsuarios(); });
+            }
+        });
+}
+
+
+// ─── NAVEGACIÓN Y CARGAS GENERALES (SPA) ─────────────────────
 function mostrarView(viewId, linkId) {
     viewActual = viewId.replace('view', '').toLowerCase();
 
@@ -252,103 +385,4 @@ function renderizarTablaProductos(items) {
             </td>
         </tr>`).join('');
     container.innerHTML = `<table class="table table-dark table-hover mb-0 align-middle table-transparent"><thead style="border-bottom: 2px solid var(--amber);"><tr><th class="py-3 px-4">Tipo</th><th>Nombre del Pack</th><th>Precio</th><th>Estado</th><th class="text-end px-4">Acciones</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-
-function cargarCupones() {
-    fetch('/Dashboard/ObtenerCupones')
-        .then(r => r.json())
-        .then(res => {
-            allCupones = res.data || [];
-            let tbody = document.getElementById('tbCuponesBody');
-            if (allCupones.length === 0) {
-                if (tbody) tbody.innerHTML = '';
-                document.getElementById('emptyCuponesMsg').style.display = 'block';
-                return;
-            }
-            document.getElementById('emptyCuponesMsg').style.display = 'none';
-            if (tbody) tbody.innerHTML = allCupones.map(c => `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td class="fw-bold fs-5 px-4 text-warning">${c.codigo}</td>
-                    <td class="text-white fw-bold">-${c.porcentaje}% OFF</td>
-                    <td class="text-muted">${c.fechaExpiracion}</td>
-                    <td><span class="badge bg-success">Activo</span></td>
-                    <td class="text-end px-4">
-                        <button class="btn btn-sm btn-outline-danger border-0 fs-5 p-2 rounded-circle" onclick="eliminarCupon(${c.idCupon})"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                </tr>`).join('');
-        });
-}
-
-function abrirModalCupon() {
-    document.getElementById('formCupon').reset();
-    document.getElementById('IdCupon').value = '0';
-
-    const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCupon'));
-    myModal.show();
-}
-
-function guardarCupon(e) {
-    e.preventDefault();
-    const data = new FormData(document.getElementById('formCupon'));
-
-    fetch('/Dashboard/GuardarCupon', { method: 'POST', body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCupon'));
-                myModal.hide();
-                setTimeout(limpiarFondoModal, 300);
-
-                Swal.fire({ icon: 'success', title: 'Guardado', background: '#121212', color: '#fff', timer: 1500, showConfirmButton: false });
-                cargarCupones();
-            }
-        });
-}
-
-function eliminarCupon(id) {
-    Swal.fire({ title: '¿Eliminar Cupón?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', background: '#121212', color: '#fff' })
-        .then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/Dashboard/EliminarCupon?id=${id}`, { method: 'POST' })
-                    .then(r => r.json())
-                    .then(res => { if (res.success) cargarCupones(); });
-            }
-        });
-}
-
-function cargarUsuarios() {
-    fetch('/Dashboard/ObtenerUsuarios')
-        .then(r => r.json())
-        .then(res => {
-            allUsuarios = res.data || [];
-            let tbody = document.getElementById('tbUsuariosBody');
-            if (allUsuarios.length === 0) {
-                if (tbody) tbody.innerHTML = '';
-                document.getElementById('emptyUsuariosMsg').style.display = 'block';
-                return;
-            }
-            document.getElementById('emptyUsuariosMsg').style.display = 'none';
-            if (tbody) tbody.innerHTML = allUsuarios.map(u => `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td class="px-4 fw-bold text-white"><i class="fa-solid fa-user-circle me-2 text-muted"></i>${u.nombres} ${u.apellidos}</td>
-                    <td class="text-muted">${u.correo}</td>
-                    <td><span class="badge ${u.activo ? 'bg-success' : 'bg-danger'}">${u.activo ? 'Activo' : 'Bloqueado'}</span></td>
-                    <td class="text-end px-4">
-                        <button class="btn btn-sm ${u.activo ? 'btn-outline-danger' : 'btn-outline-success'} fw-bold" onclick="cambiarEstadoUsuario(${u.idUsuario}, ${!u.activo})">
-                            <i class="fa-solid ${u.activo ? 'fa-ban' : 'fa-check'} me-1"></i> ${u.activo ? 'Bloquear' : 'Activar'}
-                        </button>
-                    </td>
-                </tr>`).join('');
-        });
-}
-
-function cambiarEstadoUsuario(id, estadoNuevo) {
-    Swal.fire({ title: '¿Cambiar acceso del usuario?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ffc107', background: '#121212', color: '#fff' })
-        .then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/Dashboard/CambiarEstadoUsuario?id=${id}&estado=${estadoNuevo}`, { method: 'POST' })
-                    .then(r => r.json())
-                    .then(res => { if (res.success) cargarUsuarios(); });
-            }
-        });
 }

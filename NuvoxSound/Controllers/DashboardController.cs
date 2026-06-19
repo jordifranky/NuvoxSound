@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using NuvoxSound.Data;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NuvoxSound.Controllers
 {
@@ -27,14 +29,12 @@ namespace NuvoxSound.Controllers
         {
             try
             {
-                
                 var resumen = _ventaData.ObtenerResumenNativo();
-
                 return View(resumen);
             }
             catch (Exception)
             {
-                // Si la BD falla, mandamos el modelo en 0 para que la vista no se caiga
+                
                 return View(new NuvoxSound.Entities.DashboardResumen { TotalUsuarios = 0, TotalProductos = 0, TotalVentas = 0 });
             }
         }
@@ -111,6 +111,21 @@ namespace NuvoxSound.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult ObtenerArtistas()
+        {
+            try
+            {
+                var lista = _productoData.ObtenerArtistas();
+                return Json(new { success = true, data = lista });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
         // =======================================================
         // 3. ENDPOINTS POST (ESCRITURA, EDICIÓN Y ELIMINACIÓN)
         // =======================================================
@@ -134,20 +149,41 @@ namespace NuvoxSound.Controllers
         }
 
         [HttpPost]
-        public IActionResult GuardarProducto(NuvoxSound.Entities.Producto obj)
+        public async Task<IActionResult> GuardarProducto(
+             int IdPro, string? NomPro, int IdCate, int IdArtista, decimal Precio,
+             string? RutImag, string? Descripcion, bool Activo, string? EnlaceDescarga,
+             IFormFile? ImagenPortada, IFormFile? DemoAudio, IFormFile? ArchivoZip)
         {
             try
             {
-                bool resultado = _productoData.Guardar(obj);
+                string? rutaImagen = null;
+                string? rutaAudio = null;
+                string? rutaZip = null;
 
-                if (resultado)
+                if (ImagenPortada != null && ImagenPortada.Length > 0)
+                    rutaImagen = "/uploads/img/" + ImagenPortada.FileName;
+
+                if (DemoAudio != null && DemoAudio.Length > 0)
+                    rutaAudio = "/uploads/audio/" + DemoAudio.FileName;
+
+                if (ArchivoZip != null && ArchivoZip.Length > 0)
+                    rutaZip = "/uploads/packs/" + ArchivoZip.FileName;
+
+               
+                string mensajeResultado = _productoData.GuardarProductoSP(
+                    IdPro, NomPro ?? "", IdCate, IdArtista, Precio, RutImag ?? "",
+                    Descripcion ?? "", Activo, rutaImagen, rutaAudio, rutaZip, EnlaceDescarga);
+
+              
+                if (mensajeResultado == "OK")
                     return Json(new { success = true, message = "Producto guardado con éxito." });
                 else
-                    return Json(new { success = false, message = "No se pudo guardar el producto en la BD." });
+                    
+                    return Json(new { success = false, message = mensajeResultado });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "Error en C#: " + ex.Message });
             }
         }
 
