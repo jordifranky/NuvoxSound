@@ -67,19 +67,24 @@ function abrirModalProducto() {
 }
 
 function editarProducto(id) {
+   
     const p = allProducts.find(x => x.idPro == id || x.idProducto == id);
     if (!p) return;
 
+   
     document.getElementById('IdProducto').value = p.idPro || p.idProducto;
     document.getElementById('NomPro').value = p.nomPro || p.nombreProducto;
     document.getElementById('IdCate').value = p.idCate || p.idCategoria;
     document.getElementById('Precio').value = p.precio;
-    document.getElementById('RutImag').value = p.rutImag || p.rutaImagen || '';
     document.getElementById('Descripcion').value = p.descripcion || '';
     document.getElementById('Activo').checked = p.activo;
 
-    if (p.idArtista) document.getElementById('IdArtista').value = p.idArtista;
+    const selectArtista = document.getElementById('IdArtista');
+    if (selectArtista && p.idArtista) {
+        selectArtista.value = p.idArtista;
+    }
 
+  
     document.getElementById('modalTitleProducto').innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i>Editar Producto';
     document.getElementById('modalProducto').showModal();
 }
@@ -107,7 +112,7 @@ function guardarProducto(e) {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = textoOriginal;
 
-            // 🔥 CIERRE OBLIGATORIO: Se ejecuta siempre, haya éxito o error
+            
             document.getElementById('modalProducto').close();
 
             if (res.success) {
@@ -121,21 +126,46 @@ function guardarProducto(e) {
         .catch(err => {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = textoOriginal;
-            // 🔥 CIERRE OBLIGATORIO: Si hay error de red
+            
             document.getElementById('modalProducto').close();
             Swal.fire({ icon: 'error', title: 'Fallo de Conexión', text: err.message, background: '#121212', color: '#fff' });
         });
 }
 
 function eliminarProducto(id) {
-    Swal.fire({ title: '¿Eliminar Producto?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', background: '#121212', color: '#fff' })
-        .then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/Dashboard/EliminarProducto?id=${id}`, { method: 'POST' })
-                    .then(r => r.json())
-                    .then(res => { if (res.success) { cargarDatosGenerales(); setTimeout(() => mostrarView('viewProductos', 'linkProductos'), 500); } });
-            }
-        });
+    Swal.fire({
+        title: '¿Ocultar de la tienda?',
+        text: "Por seguridad e historial de compras, el producto no se borrará, pero pasará a estado INACTIVO y nadie más podrá verlo ni comprarlo.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#343a40',
+        confirmButtonText: 'Sí, ocultarlo',
+        cancelButtonText: 'Cancelar',
+        background: '#121212',
+        color: '#fff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/Dashboard/EliminarProducto?id=${id}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        
+                        Swal.fire({ icon: 'success', title: '¡Producto Inactivo!', background: '#121212', color: '#fff', timer: 1500, showConfirmButton: false });
+
+                      
+                        fetch('/Dashboard/ObtenerProductos')
+                            .then(r => r.json())
+                            .then(json => {
+                                allProducts = json.data || [];
+                                mostrarView('viewProductos', 'linkProductos');
+                            });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#121212', color: '#fff' });
+                    }
+                });
+        }
+    });
 }
 
 

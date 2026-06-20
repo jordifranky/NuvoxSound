@@ -254,6 +254,75 @@ namespace NuvoxSound.Data
                 return ex.Message;
             }
         } // fin del metodo GuardarProductoSP
+        // =======================================================
+        // GESTIÓN  CUPONES 
+        // =======================================================
+        public object ObtenerCupones()
+        {
+            var lista = new List<object>();
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+                SqlCommand cmd = new SqlCommand("usp_ListarCupones", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+                try
+                {
+                    conexion.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new
+                            {
+                                idCupon = Convert.ToInt32(dr["IdCupon"]),
+                                codigo = dr["Codigo"].ToString(),
+                                porcentaje = Convert.ToInt32(dr["Porcentaje"]),
+                                fechaExpiracion = dr["FechaExpiracion"].ToString()
+                            });
+                        }
+                    }
+                }
+                catch (Exception) { }
+            }
+            return lista;
+        }
+
+        public bool GuardarCupon(string codigo, int porcentaje, string fechaExpiracion)
+        {
+            try
+            {
+                using (SqlConnection conexion = new SqlConnection(cn))
+                {
+                    SqlCommand cmd = new SqlCommand("usp_InsertarCupon", conexion);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Codigo", codigo);
+                    cmd.Parameters.AddWithValue("@Porcentaje", porcentaje);
+                    cmd.Parameters.AddWithValue("@FechaExpiracion", fechaExpiracion);
+
+                    conexion.Open();
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch { return false; }
+        }
+
+        public bool EliminarCupon(int id)
+        {
+            try
+            {
+                using (SqlConnection conexion = new SqlConnection(cn))
+                {
+                    SqlCommand cmd = new SqlCommand("usp_EliminarCupon", conexion);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@IdCupon", id);
+
+                    conexion.Open();
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch { return false; }
+        }
     }
 
 }
