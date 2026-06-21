@@ -254,6 +254,7 @@ namespace NuvoxSound.Data
                 return ex.Message;
             }
         } // fin del metodo GuardarProductoSP
+
         // =======================================================
         // GESTIÓN  CUPONES 
         // =======================================================
@@ -323,6 +324,40 @@ namespace NuvoxSound.Data
             }
             catch { return false; }
         }
+        // =======================================================
+        // CÓDIGOS PARA CHATBOT (BÚSQUEDA DE PRODUCTOS POR TEXTO LIBRE)
+        // =======================================================
+        public string BuscarProductoParaChatbot(string busquedaCliente)
+        {
+           
+            string palabraClave = busquedaCliente.Replace("busco", "").Replace("quiero", "").Trim();
+
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+                
+                SqlCommand cmd = new SqlCommand("usp_TiendaListar", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                
+                cmd.Parameters.AddWithValue("@Busqueda", palabraClave);
+                cmd.Parameters.AddWithValue("@Categoria", DBNull.Value);
+                cmd.Parameters.AddWithValue("@IdArtista", DBNull.Value);
+
+                conexion.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        
+                        string nombre = dr["NombreProducto"].ToString();
+                        string precio = dr["Precio"].ToString();
+                        return $"¡Encontré algo perfecto para ti! Te recomiendo el pack '{nombre}' que está a ${precio}. ¿Te gustaría verlo en la tienda?";
+                    }
+                }
+            }
+            return "Lo siento, no encontré un pack exacto con ese nombre, pero puedes revisar nuestra sección de Categorías.";
+        }
     }
+
 
 }

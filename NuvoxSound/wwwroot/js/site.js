@@ -106,7 +106,6 @@ if (overlayE) overlayE.addEventListener("click", closeModal);
 /* =====================================================
    NUVOX SOUND — site.js (Global Frontend)
    ===================================================== */
-
 document.addEventListener('DOMContentLoaded', function () {
 
     // 1. Selector de Monedas (Visual Toggle)
@@ -139,3 +138,49 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+/* =========================================
+   LÓGICA DEL CHATBOT NUVOX (CONEXIÓN C#)
+   ========================================= */
+function enviarMensajeChat() {
+    const input = document.getElementById('chatInput');
+    const mensaje = input.value.trim();
+    if (!mensaje) return;
+
+    const cajaMensajes = document.getElementById('chatMensajes');
+
+    // 1. Dibuja el mensaje del usuario
+    cajaMensajes.innerHTML += `
+        <div class="chat-msg user-msg">
+            <strong>Tú:</strong> ${mensaje}
+        </div>`;
+
+    input.value = '';
+    cajaMensajes.scrollTop = cajaMensajes.scrollHeight;
+
+    // 2. Dibuja el estado "Escribiendo..."
+    const idEscribiendo = "escribiendo_" + Date.now();
+    cajaMensajes.innerHTML += `<div id="${idEscribiendo}" style="color:#aaa; font-size:12px; align-self:flex-start;">Watson está pensando...</div>`;
+    cajaMensajes.scrollTop = cajaMensajes.scrollHeight;
+
+    // 3. Envía el texto a tu Backend C#
+    fetch(`/Chat/EnviarMensaje?mensaje=${encodeURIComponent(mensaje)}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            // Elimina el "Escribiendo..."
+            const elementoEscribiendo = document.getElementById(idEscribiendo);
+            if (elementoEscribiendo) elementoEscribiendo.remove();
+
+            // Dibuja la respuesta final que devuelve el C#
+            cajaMensajes.innerHTML += `
+                <div class="chat-msg watson-msg">
+                    <strong>Watson:</strong> ${data.respuesta}
+                </div>`;
+            cajaMensajes.scrollTop = cajaMensajes.scrollHeight;
+        })
+        .catch(err => {
+            const elementoEscribiendo = document.getElementById(idEscribiendo);
+            if (elementoEscribiendo) elementoEscribiendo.remove();
+            cajaMensajes.innerHTML += `<div style="color:red; font-size:12px; align-self:center;">Error al conectar con el servidor interno.</div>`;
+        });
+}

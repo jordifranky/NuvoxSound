@@ -9,7 +9,7 @@
         var diccionario = JsonSerializer.Deserialize<Dictionary<int, int>>(dataSesion);
         if (diccionario != null)
         {
-            totalItems = diccionario.Values.Sum(); 
+            totalItems = diccionario.Values.Sum();
         }
     }
 }
@@ -21,7 +21,6 @@
     <title>@ViewData["Title"] - NuvoxSound</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
@@ -67,19 +66,16 @@
 
                 <button class="nav-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
 
-                
                 @if (User.Identity!.IsAuthenticated)
                 {
                     @if (User.IsInRole("1"))
                     {
-                        
                         <a asp-controller="Dashboard" asp-action="Index" class="nav-btn" style="color: var(--amber);" title="Panel de Administración">
                             <i class="fa-solid fa-user-shield"></i>
                         </a>
                     }
                     else
                     {
-                        
                         <a asp-controller="Cliente" asp-action="Index" class="nav-btn" style="color: var(--amber);" title="Mi Librería">
                             <i class="fa-solid fa-circle-user"></i>
                         </a>
@@ -87,7 +83,6 @@
                 }
                 else
                 {
-                    
                     <a asp-controller="Auth" asp-action="Login" class="nav-btn" title="Iniciar Sesión">
                         <i class="fa-regular fa-user"></i>
                     </a>
@@ -108,23 +103,31 @@
         @RenderBody()
     </main>
 
+    <button id="btnAbrirChat" class="chat-trigger-btn" onclick="document.getElementById('nuvoxChatBot').style.display='flex'; this.style.display='none';">
+        <i class="fa-solid fa-message"></i>
+    </button>
+
+    <div id="nuvoxChatBot" class="chat-container" style="display: none;">
+        <div class="chat-header">
+            <span><i class="fa-solid fa-robot"></i> Asistente Nuvox</span>
+            <span class="chat-close" onclick="document.getElementById('nuvoxChatBot').style.display='none'; document.getElementById('btnAbrirChat').style.display='block';">X</span>
+        </div>
+
+        <div id="chatMensajes" class="chat-messages">
+            <div class="chat-msg watson-msg">
+                <strong>Watson:</strong> ¡Hola! Bienvenido a Nuvox Records. ¿En qué te puedo ayudar hoy?
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" class="form-control chat-input" placeholder="Escribe tu mensaje..." onkeypress="if(event.key === 'Enter') enviarMensajeChat()">
+            <button onclick="enviarMensajeChat()" class="btn chat-send-btn ms-2">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <!-- SCRIPT DEL CHATBOT IBM WATSON -->
-    <script>
-        window.watsonAssistantChatOptions = {
-        integrationID: "8d3511b2-1076-429c-b984-b0ff7dcb23b7",
-        region: "au-syd",
-        serviceInstanceID: "6170b0c4-42b1-407d-a4f6-db59abdea4a4",
-        onLoad: async (instance) => { await instance.render(); }
-        };
-        setTimeout(function(){
-        const t=document.createElement('script');
-        t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
-        document.head.appendChild(t);
-        });
-    </script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
