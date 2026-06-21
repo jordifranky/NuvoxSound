@@ -4,7 +4,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @inject ProductoData _productoData
 @{
-    // 1. Lógica del Carrito
+   
     int totalItems = 0;
     var dataSesion = HttpContextAccessor.HttpContext?.Session.GetString("CarritoIDs");
     if (!string.IsNullOrEmpty(dataSesion))
@@ -16,7 +16,7 @@
         }
     }
 
-    // 2. Lógica de Base de Datos (Traer Artistas)
+    
     var objArtistas = _productoData.ObtenerArtistas();
     var jsonArtistas = JsonSerializer.Serialize(objArtistas);
     var listaArtistas = JsonSerializer.Deserialize<List<JsonElement>>(jsonArtistas);
@@ -120,28 +120,19 @@
                 <div class="nav-item mega-trigger">
                     <a href="#" class="nav-link">SERVICIOS <i class="fa-solid fa-caret-down nav-caret"></i></a>
                     <div class="dropdown dropdown-simple">
-                        <a href="/Tienda/Categoria/MezclaMastering" class="dropdown-link">Mezcla &amp; Mastering</a>
-                        <a href="/Tienda/Categoria/MelodiasMedida" class="dropdown-link">Melodías a Medida</a>
+                        <a href="/Tienda/Categoria/Mixing" class="dropdown-link">Mezcla &amp; Mastering</a>
+                        <a href="/Tienda/Categoria/Signature" class="dropdown-link">Melodías a Medida</a>
                         <a href="/Tienda/Categoria/Tutorias" class="dropdown-link">Tutorías de Producción</a>
                     </div>
                 </div>
 
                 <div class="nav-item mega-trigger">
                     <a href="#" class="nav-link">MERCANCÍA <i class="fa-solid fa-caret-down nav-caret"></i></a>
-                    <div class="mega-menu">
-                        @if (listaArtistas != null)
-                        {
-                            foreach (var artista in listaArtistas.Take(4))
-                            {
-                                <div class="mega-col">
-                                    <span class="mega-col-title">@artista.GetProperty("nombreArtista").GetString()</span>
-                                    <a href="/Tienda/Categoria/Polos" class="mega-link">Polos</a>
-                                    <a href="/Tienda/Categoria/Buzos" class="mega-link">Buzos</a>
-                                    <a href="/Tienda/Categoria/Hoodies" class="mega-link">Hoodies</a>
-                                    <a href="/Tienda/Categoria/Gorras" class="mega-link">Gorras</a>
-                                </div>
-                            }
-                        }
+                    <div class="dropdown dropdown-simple">
+                        <a href="/Tienda/Categoria/Polos" class="dropdown-link">Polos</a>
+                        <a href="/Tienda/Categoria/Buzos" class="dropdown-link">Buzos</a>
+                        <a href="/Tienda/Categoria/Hoodies" class="dropdown-link">Hoodies</a>
+                        <a href="/Tienda/Categoria/Gorras" class="dropdown-link">Gorras</a>
                     </div>
                 </div>
 
@@ -285,9 +276,29 @@
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
         </div>
+
+        <div style="padding: 12px; border-top: 1px solid rgba(240, 165, 0, 0.2); text-align: center;">
+            <button onclick="if(typeof Tawk_API !== 'undefined') Tawk_API.toggle(); else alert('Cargando chat en vivo...');"
+                    style="width: 100%; padding: 10px; background: rgba(240, 165, 0, 0.2); color: #f0a500; border: 1px solid #f0a500; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s;">
+                <i class="fa-solid fa-headset"></i> Hablar con un Asesor en Vivo
+            </button>
+            <p style="font-size: 0.75rem; color: #606880; margin-top: 8px; margin-bottom: 0;">Conecta con un especialista de Nuvox</p>
+        </div>
     </div>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/YOUR_TAWK_ID/default';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
 </body>
 </html>

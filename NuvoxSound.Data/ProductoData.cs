@@ -366,16 +366,13 @@ namespace NuvoxSound.Data
             var lista = new List<dynamic>();
             using (SqlConnection conexion = new SqlConnection(cn))
             {
-                
-                string query = @"
-                    SELECT p.IdProducto, p.NombreProducto, p.Precio, ISNULL(a.NombreArtista, 'Nuvox Exclusive') AS NombreArtista 
-                    FROM Producto p
-                    LEFT JOIN Artista a ON p.IdArtista = a.IdArtista
-                    LEFT JOIN Categoria c ON p.IdCategoria = c.IdCategoria
-                    WHERE c.NombreCategoria LIKE '%' + @Categoria + '%' AND p.Activo = 1";
+                SqlCommand cmd = new SqlCommand("usp_TiendaListar", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
 
-                SqlCommand cmd = new SqlCommand(query, conexion);
+                
                 cmd.Parameters.AddWithValue("@Categoria", categoria);
+                cmd.Parameters.AddWithValue("@Busqueda", DBNull.Value);
+                cmd.Parameters.AddWithValue("@IdArtista", DBNull.Value);
 
                 try
                 {
@@ -389,18 +386,19 @@ namespace NuvoxSound.Data
                                 idProducto = Convert.ToInt32(dr["IdProducto"]),
                                 nombre = dr["NombreProducto"].ToString(),
                                 precio = Convert.ToDouble(dr["Precio"]),
-                                artista = dr["NombreArtista"].ToString()
+                                artista = dr["NombreArtista"].ToString(),
+                                imagen = dr["RutaImagen"].ToString()
                             });
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("ERROR DE SQL: " + ex.Message);
+                    throw new Exception("ERROR DE SP (Categoría): " + ex.Message);
                 }
             }
             return lista;
-        }//Fin del metodo obtenerProductosPorCategoria
+        }
 
         // ========================================================
         // 2. OBTENER PRODUCTOS POR ARTISTA 
@@ -410,14 +408,11 @@ namespace NuvoxSound.Data
             var lista = new List<dynamic>();
             using (SqlConnection conexion = new SqlConnection(cn))
             {
-                // Tablas en singular: Producto, Artista
-                string query = @"
-                    SELECT p.IdProducto, p.NombreProducto, p.Precio, ISNULL(a.NombreArtista, 'Nuvox Exclusive') AS NombreArtista 
-                    FROM Producto p
-                    LEFT JOIN Artista a ON p.IdArtista = a.IdArtista
-                    WHERE p.IdArtista = @IdArtista AND p.Activo = 1";
-
-                SqlCommand cmd = new SqlCommand(query, conexion);
+                
+                SqlCommand cmd = new SqlCommand("usp_TiendaListar", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Categoria", DBNull.Value);
+                cmd.Parameters.AddWithValue("@Busqueda", DBNull.Value);
                 cmd.Parameters.AddWithValue("@IdArtista", idArtista);
 
                 try
@@ -432,35 +427,30 @@ namespace NuvoxSound.Data
                                 idProducto = Convert.ToInt32(dr["IdProducto"]),
                                 nombre = dr["NombreProducto"].ToString(),
                                 precio = Convert.ToDouble(dr["Precio"]),
-                                artista = dr["NombreArtista"].ToString()
+                                artista = dr["NombreArtista"].ToString(),
+                                imagen = dr["RutaImagen"].ToString()
                             });
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("ERROR DE SQL: " + ex.Message);
+                    throw new Exception("ERROR DE SP (Artista): " + ex.Message);
                 }
             }
             return lista;
-        }//Fin del metodo obtenerProductosPorArtista
+        }
 
         // ========================================================
-        // 3. OBTENER DETALLE DE UN PRODUCTO INDIVIDUAL
+        // 3. OBTENER DETALLE DE UN PRODUCTO 
         // ========================================================
         public dynamic ObtenerDetalleProducto(int idProducto)
         {
             using (SqlConnection conexion = new SqlConnection(cn))
             {
-               
-                string query = @"
-                    SELECT p.IdProducto, p.NombreProducto, p.Descripcion, p.Precio, 
-                           ISNULL(a.NombreArtista, 'Nuvox Exclusive') AS NombreArtista 
-                    FROM Producto p
-                    LEFT JOIN Artista a ON p.IdArtista = a.IdArtista
-                    WHERE p.IdProducto = @IdProducto";
-
-                SqlCommand cmd = new SqlCommand(query, conexion);
+                
+                SqlCommand cmd = new SqlCommand("usp_ObtenerDetalleProducto", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@IdProducto", idProducto);
 
                 try
@@ -471,8 +461,6 @@ namespace NuvoxSound.Data
                         if (dr.Read())
                         {
                             double precioReal = Convert.ToDouble(dr["Precio"]);
-
-                           
                             double precioTachado = precioReal + (precioReal * 0.30);
 
                             return new
@@ -485,18 +473,19 @@ namespace NuvoxSound.Data
                                               dr["Descripcion"].ToString(),
                                 precio = precioReal,
                                 precioAntiguo = precioTachado,
-                                artista = dr["NombreArtista"].ToString()
+                                artista = dr["NombreArtista"].ToString(),
+                                imagen = dr["RutaImagen"].ToString()
                             };
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("ERROR DE SQL: " + ex.Message);
+                    throw new Exception("ERROR DE SP (Detalle): " + ex.Message);
                 }
             }
             return null;
-        }//Fin del metodo obtenerDetalleProducto
+        }
     }
 
 
