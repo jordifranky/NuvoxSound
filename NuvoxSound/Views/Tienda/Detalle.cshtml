@@ -1,0 +1,79 @@
+﻿@using System.Text.Json
+@model dynamic
+@{
+    ViewData["Title"] = "Detalle del Producto";
+
+    
+    var jsonProducto = JsonSerializer.Serialize(Model);
+    var prod = JsonSerializer.Deserialize<JsonElement>(jsonProducto);
+
+  
+    var id = prod.GetProperty("idProducto").GetInt32();
+    var nombre = prod.GetProperty("nombre").GetString();
+    var descripcion = prod.GetProperty("descripcion").GetString();
+    var precio = prod.GetProperty("precio").GetDouble();
+    var precioAntiguo = prod.GetProperty("precioAntiguo").GetDouble();
+    var artista = prod.GetProperty("artista").GetString();
+
+    
+    var coverClass = id % 2 == 0 ? "cover-2" : "cover-1";
+}
+
+<div class="section-container" style="padding-top: 80px; padding-bottom: 80px;">
+    <div class="row align-items-center" style="gap: 40px; display: flex; flex-wrap: wrap;">
+
+        <div style="flex: 1; min-width: 300px; display: flex; justify-content: center;">
+            <div class="cover-art cover-art-hero @coverClass" style="width: 100%; max-width: 450px; height: 450px; box-shadow: 0 30px 60px rgba(0,0,0,0.8);">
+                <div class="cover-waveform">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                </div>
+                <h2 class="cover-label" style="font-size: 2rem; margin-top: 20px;">@nombre.ToUpper()</h2>
+                <p class="cover-sub">VOL. @id</p>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 300px;">
+            <span class="hero-badge">
+                <span class="badge-dot"></span> DISPONIBLE AHORA
+            </span>
+
+            <h1 class="hero-title" style="font-size: 3.5rem;">
+                <span class="hero-title-line">@artista</span>
+                <span class="hero-title-italic">@nombre</span>
+            </h1>
+
+            <p class="hero-subtitle" style="font-size: 1.1rem; max-width: 100%;">
+                @descripcion
+            </p>
+
+            <ul style="list-style: none; padding: 0; margin-bottom: 30px; color: var(--grey-300); font-size: 0.95rem;">
+                <li style="margin-bottom: 10px;"><i class="fa-solid fa-check" style="color: var(--amber); margin-right: 10px;"></i> Descarga instantánea de alta calidad</li>
+                <li style="margin-bottom: 10px;"><i class="fa-solid fa-check" style="color: var(--amber); margin-right: 10px;"></i> 100% Royalty Free</li>
+            </ul>
+
+            <div class="hero-price-block">
+                <span class="hero-price" data-usd-price="@precio">$@precio.ToString("0.00")</span>
+                @if (precioAntiguo > precio)
+                {
+                    <span class="hero-price-old">$@precioAntiguo.ToString("0.00")</span>
+                    <span class="hero-badge-sale">OFERTA</span>
+                }
+            </div>
+
+            <div class="hero-actions">
+                <button class="btn-outline" style="min-width: 160px;">
+                    <i class="fa-solid fa-play"></i> Escuchar Demo
+                </button>
+
+                <form action="/Carrito/Agregar" method="post" style="margin: 0;">
+                    <input type="hidden" name="id" value="@id" />
+                    <button type="submit" class="btn-primary" style="min-width: 220px;">
+                        <i class="fa-solid fa-cart-shopping"></i> Añadir al Carrito
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

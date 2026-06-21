@@ -356,7 +356,147 @@ namespace NuvoxSound.Data
                 }
             }
             return "Lo siento, no encontré un pack exacto con ese nombre, pero puedes revisar nuestra sección de Categorías.";
-        }
+        } //Fin del metodo BuscarProductoParaChatbot
+
+        // ========================================================
+        // 1. OBTENER PRODUCTOS POR CATEGORÍA 
+        // ========================================================
+        public IEnumerable<dynamic> ObtenerProductosPorCategoria(string categoria)
+        {
+            var lista = new List<dynamic>();
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+                
+                string query = @"
+                    SELECT p.IdProducto, p.NombreProducto, p.Precio, ISNULL(a.NombreArtista, 'Nuvox Exclusive') AS NombreArtista 
+                    FROM Producto p
+                    LEFT JOIN Artista a ON p.IdArtista = a.IdArtista
+                    LEFT JOIN Categoria c ON p.IdCategoria = c.IdCategoria
+                    WHERE c.NombreCategoria LIKE '%' + @Categoria + '%' AND p.Activo = 1";
+
+                SqlCommand cmd = new SqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@Categoria", categoria);
+
+                try
+                {
+                    conexion.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new
+                            {
+                                idProducto = Convert.ToInt32(dr["IdProducto"]),
+                                nombre = dr["NombreProducto"].ToString(),
+                                precio = Convert.ToDouble(dr["Precio"]),
+                                artista = dr["NombreArtista"].ToString()
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("ERROR DE SQL: " + ex.Message);
+                }
+            }
+            return lista;
+        }//Fin del metodo obtenerProductosPorCategoria
+
+        // ========================================================
+        // 2. OBTENER PRODUCTOS POR ARTISTA 
+        // ========================================================
+        public IEnumerable<dynamic> ObtenerProductosPorArtista(int idArtista)
+        {
+            var lista = new List<dynamic>();
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+                // Tablas en singular: Producto, Artista
+                string query = @"
+                    SELECT p.IdProducto, p.NombreProducto, p.Precio, ISNULL(a.NombreArtista, 'Nuvox Exclusive') AS NombreArtista 
+                    FROM Producto p
+                    LEFT JOIN Artista a ON p.IdArtista = a.IdArtista
+                    WHERE p.IdArtista = @IdArtista AND p.Activo = 1";
+
+                SqlCommand cmd = new SqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@IdArtista", idArtista);
+
+                try
+                {
+                    conexion.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            lista.Add(new
+                            {
+                                idProducto = Convert.ToInt32(dr["IdProducto"]),
+                                nombre = dr["NombreProducto"].ToString(),
+                                precio = Convert.ToDouble(dr["Precio"]),
+                                artista = dr["NombreArtista"].ToString()
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("ERROR DE SQL: " + ex.Message);
+                }
+            }
+            return lista;
+        }//Fin del metodo obtenerProductosPorArtista
+
+        // ========================================================
+        // 3. OBTENER DETALLE DE UN PRODUCTO INDIVIDUAL
+        // ========================================================
+        public dynamic ObtenerDetalleProducto(int idProducto)
+        {
+            using (SqlConnection conexion = new SqlConnection(cn))
+            {
+               
+                string query = @"
+                    SELECT p.IdProducto, p.NombreProducto, p.Descripcion, p.Precio, 
+                           ISNULL(a.NombreArtista, 'Nuvox Exclusive') AS NombreArtista 
+                    FROM Producto p
+                    LEFT JOIN Artista a ON p.IdArtista = a.IdArtista
+                    WHERE p.IdProducto = @IdProducto";
+
+                SqlCommand cmd = new SqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@IdProducto", idProducto);
+
+                try
+                {
+                    conexion.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            double precioReal = Convert.ToDouble(dr["Precio"]);
+
+                           
+                            double precioTachado = precioReal + (precioReal * 0.30);
+
+                            return new
+                            {
+                                idProducto = Convert.ToInt32(dr["IdProducto"]),
+                                nombre = dr["NombreProducto"].ToString(),
+
+                                descripcion = string.IsNullOrEmpty(dr["Descripcion"].ToString()) ?
+                                              "Un paquete esencial con sonidos puros para tu próxima producción Trance." :
+                                              dr["Descripcion"].ToString(),
+                                precio = precioReal,
+                                precioAntiguo = precioTachado,
+                                artista = dr["NombreArtista"].ToString()
+                            };
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("ERROR DE SQL: " + ex.Message);
+                }
+            }
+            return null;
+        }//Fin del metodo obtenerDetalleProducto
     }
 
 

@@ -1,7 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using System.Text.Json
+@using NuvoxSound.Data
 @inject IHttpContextAccessor HttpContextAccessor
+@inject ProductoData _productoData
 @{
+    // 1. Lógica del Carrito
     int totalItems = 0;
     var dataSesion = HttpContextAccessor.HttpContext?.Session.GetString("CarritoIDs");
     if (!string.IsNullOrEmpty(dataSesion))
@@ -12,6 +15,11 @@
             totalItems = diccionario.Values.Sum();
         }
     }
+
+    // 2. Lógica de Base de Datos (Traer Artistas)
+    var objArtistas = _productoData.ObtenerArtistas();
+    var jsonArtistas = JsonSerializer.Serialize(objArtistas);
+    var listaArtistas = JsonSerializer.Deserialize<List<JsonElement>>(jsonArtistas);
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -41,10 +49,102 @@
             </a>
 
             <div class="nav-links">
-                <div class="nav-item"><a href="#" class="nav-link">CATEGORÍAS <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
-                <div class="nav-item"><a href="#" class="nav-link">ARTISTAS <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
-                <div class="nav-item"><a href="#" class="nav-link">SERVICIOS <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
-                <div class="nav-item"><a href="#" class="nav-link">MERCANCÍA <i class="fa-solid fa-caret-down nav-caret"></i></a></div>
+
+                <div class="nav-item mega-trigger">
+                    <a href="#" class="nav-link">CATEGORÍAS <i class="fa-solid fa-caret-down nav-caret"></i></a>
+                    <div class="mega-menu">
+                        <div class="mega-col">
+                            <span class="mega-col-title">Sample Packs</span>
+                            <a href="/Tienda/Categoria/Kicks" class="mega-link">Kicks</a>
+                            <a href="/Tienda/Categoria/Bateria" class="mega-link">Batería &amp; Percusión</a>
+                            <a href="/Tienda/Categoria/Bajos" class="mega-link">Bajos</a>
+                            <a href="/Tienda/Categoria/Melodias" class="mega-link">Synths &amp; Melodías</a>
+                            <a href="/Tienda/Categoria/Atmósferas" class="mega-link">FX &amp; Atmósferas</a>
+                        </div>
+                        <div class="mega-col">
+                            <span class="mega-col-title">Plug-Ins</span>
+                            <a href="/Tienda/Categoria/PluginsEfectos" class="mega-link">Plug-Ins de Efectos</a>
+                            <a href="/Tienda/Categoria/RacksAbleton" class="mega-link">Racks de Ableton</a>
+                        </div>
+                        <div class="mega-col">
+                            <span class="mega-col-title">Soundsets</span>
+                            <a href="/Tienda/Categoria/Spire" class="mega-link">Spire</a>
+                            <a href="/Tienda/Categoria/Serum" class="mega-link">Serum</a>
+                            <a href="/Tienda/Categoria/Dune3" class="mega-link">Dune 3</a>
+                            <a href="/Tienda/Categoria/Sylenth1" class="mega-link">Sylenth1</a>
+                            <a href="/Tienda/Categoria/Gratis" class="mega-link">Gratis</a>
+                        </div>
+                        <div class="mega-col">
+                            <span class="mega-col-title">MIDI Packs</span>
+                            <a href="/Tienda/Categoria/MIDIMelodias" class="mega-link">Melodías</a>
+                            <a href="/Tienda/Categoria/MIDIAcordes" class="mega-link">Acordes</a>
+                            <a href="/Tienda/Categoria/MIDIBass" class="mega-link">Mid Bass</a>
+                            <a href="/Tienda/Categoria/MIDIIdeas" class="mega-link">Ideas Completas</a>
+                        </div>
+                        <div class="mega-col">
+                            <span class="mega-col-title">Templates</span>
+                            <a href="/Tienda/Categoria/AbletonLive" class="mega-link">Ableton Live</a>
+                            <a href="/Tienda/Categoria/FLStudio" class="mega-link">FL Studio</a>
+                            <a href="/Tienda/Categoria/StudioOne" class="mega-link">Studio One</a>
+                            <a href="/Tienda/Categoria/ConstructionKits" class="mega-link">Construction Kits</a>
+                        </div>
+                        <div class="mega-col">
+                            <span class="mega-col-title">Tutoriales</span>
+                            <a href="/Tienda/Categoria/Walkthrough" class="mega-link">Walkthrough Tutorials</a>
+                            <a href="/Tienda/Categoria/Blueprint" class="mega-link">Blueprint Tutorials</a>
+                            <a href="/Tienda/Categoria/Mezcla" class="mega-link">Tutoriales de Mezcla</a>
+                        </div>
+                        <div class="mega-col">
+                            <span class="mega-col-title">Presets</span>
+                            <a href="/Tienda/Categoria/FabfilterQ3" class="mega-link">Fabfilter Pro-Q3</a>
+                            <a href="/Tienda/Categoria/FabfilterMB" class="mega-link">Fabfilter Pro-MB</a>
+                            <a href="/Tienda/Categoria/Soothe2" class="mega-link">Oeksound Soothe2</a>
+                            <a href="/Tienda/Categoria/Ozone" class="mega-link">iZotope Ozone</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-item mega-trigger">
+                    <a href="#" class="nav-link">ARTISTAS <i class="fa-solid fa-caret-down nav-caret"></i></a>
+                    <div class="dropdown dropdown-simple dropdown-artists">
+                        @if (listaArtistas != null)
+                        {
+                            foreach (var artista in listaArtistas)
+                            {
+                                <a href="/Tienda/Artista/@artista.GetProperty("idArtista").GetInt32()" class="dropdown-link">@artista.GetProperty("nombreArtista").GetString()</a>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="nav-item mega-trigger">
+                    <a href="#" class="nav-link">SERVICIOS <i class="fa-solid fa-caret-down nav-caret"></i></a>
+                    <div class="dropdown dropdown-simple">
+                        <a href="/Tienda/Categoria/MezclaMastering" class="dropdown-link">Mezcla &amp; Mastering</a>
+                        <a href="/Tienda/Categoria/MelodiasMedida" class="dropdown-link">Melodías a Medida</a>
+                        <a href="/Tienda/Categoria/Tutorias" class="dropdown-link">Tutorías de Producción</a>
+                    </div>
+                </div>
+
+                <div class="nav-item mega-trigger">
+                    <a href="#" class="nav-link">MERCANCÍA <i class="fa-solid fa-caret-down nav-caret"></i></a>
+                    <div class="mega-menu">
+                        @if (listaArtistas != null)
+                        {
+                            foreach (var artista in listaArtistas.Take(4))
+                            {
+                                <div class="mega-col">
+                                    <span class="mega-col-title">@artista.GetProperty("nombreArtista").GetString()</span>
+                                    <a href="/Tienda/Categoria/Polos" class="mega-link">Polos</a>
+                                    <a href="/Tienda/Categoria/Buzos" class="mega-link">Buzos</a>
+                                    <a href="/Tienda/Categoria/Hoodies" class="mega-link">Hoodies</a>
+                                    <a href="/Tienda/Categoria/Gorras" class="mega-link">Gorras</a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
             </div>
 
             <div class="nav-actions">
@@ -102,6 +202,66 @@
     <main role="main">
         @RenderBody()
     </main>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <a href="/" class="nav-logo" style="margin-bottom: 15px; display: inline-flex;">
+                    <i class="fa-solid fa-compact-disc logo-icon"></i>
+                    <span class="logo-text">NUVOX <span class="logo-accent">SOUND</span></span>
+                </a>
+                <p class="footer-tagline">
+                    Únete a nuestra lista de correos. Sé el primero en enterarte de futuros productos, descuentos y ofertas especiales.
+                </p>
+                <form class="footer-newsletter" style="display: flex; gap: 8px; margin-bottom: 20px;">
+                    <input type="email" placeholder="Tu e-mail..." class="custom-input" style="padding: 10px; font-size: 0.85rem;" required>
+                    <button type="submit" class="btn-primary" style="padding: 10px 15px;"><i class="fa-solid fa-envelope"></i></button>
+                </form>
+                <div class="footer-social">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#"><i class="fa-brands fa-soundcloud"></i></a>
+                    <a href="#"><i class="fa-brands fa-spotify"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>PRODUCTOS</h4>
+                <a href="/Tienda/Categoria/Kicks">Sample Packs</a>
+                <a href="/Tienda/Categoria/Spire">Soundsets</a>
+                <a href="/Tienda/Categoria/MIDIMelodias">MIDI Packs</a>
+                <a href="/Tienda/Categoria/AbletonLive">Templates</a>
+                <a href="/Tienda/Categoria/Tutoriales">Tutoriales</a>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>SOPORTE</h4>
+                <a href="/Soporte/Contacto">Contáctanos</a>
+                <a href="/Cliente/Index">Mi Cuenta / Descargas</a>
+                <a href="/Soporte/FAQ">Preguntas Frecuentes</a>
+                <a href="/Soporte/Licencias">Licencias de Uso</a>
+            </div>
+
+            <div class="footer-links-group">
+                <h4>LEGAL</h4>
+                <a href="/Legal/Terminos">Términos de Servicio</a>
+                <a href="/Legal/Privacidad">Política de Privacidad</a>
+                <a href="/Legal/Reembolsos">Política de Reembolsos</a>
+                <a href="/Legal/Retiro">Formulario de Retiro</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="copyright">
+                &copy; @DateTime.Now.Year Nuvox Records. Todos los derechos reservados.
+            </div>
+            <div class="footer-currencies">
+                <i class="fa-brands fa-cc-visa"></i>
+                <i class="fa-brands fa-cc-mastercard"></i>
+                <i class="fa-brands fa-cc-paypal"></i>
+                <i class="fa-brands fa-apple-pay"></i>
+            </div>
+        </div>
+    </footer>
 
     <button id="btnAbrirChat" class="chat-trigger-btn" onclick="document.getElementById('nuvoxChatBot').style.display='flex'; this.style.display='none';">
         <i class="fa-solid fa-message"></i>
@@ -115,7 +275,7 @@
 
         <div id="chatMensajes" class="chat-messages">
             <div class="chat-msg watson-msg">
-                <strong>Watson:</strong> ¡Hola! Bienvenido a Nuvox Records. ¿En qué te puedo ayudar hoy?
+                <strong>Nuvox Bot:</strong> ¡Hola! Bienvenido a Nuvox Records. ¿En qué te puedo ayudar hoy?
             </div>
         </div>
 
